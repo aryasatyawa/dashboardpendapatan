@@ -323,118 +323,92 @@
             <!-- DASHBOARD GRAFIK LENGKAP - 2 KOLOM -->
             <!-- ═══════════════════════════════════════════════════════════════ -->
 
-            <!-- ROW 1 -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                <!-- Transaksi Provinsi -->
+            <!-- ═══ ROW 1: TRANSAKSI REAL-TIME ═══ -->
+            <div class="grid grid-cols-1 lg:grid-cols-1 gap-5">
                 <div class="fade-up bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                    <h3 class="font-bold text-gray-800 mb-2">Transaksi Samsat Provinsi Hari Ini</h3>
-                    <p class="text-xs text-gray-500 mb-4">Data transaksi PKB dan BBNKB berdasarkan jumlah roda kendaraan
-                    </p>
+                    <h3 class="font-bold text-gray-800 mb-2">Transaksi Real-Time Hari Ini</h3>
+                    <p class="text-xs text-gray-500 mb-4">Perbandingan Transaksi PKB dan BBNKB - Hari Ini vs Kemarin</p>
                     <div class="h-[250px] flex items-center justify-center">
                         <canvas id="transaksiChart"></canvas>
                     </div>
                 </div>
+            </div>
 
-                <!-- Tren Realisasi PAD - Line -->
+            <!-- ═══ ROW 2: TREN REALISASI PAD ═══ -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
                 <div class="fade-up bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
                     <h3 class="font-bold text-gray-800 mb-2">Tren Realisasi Pendapatan</h3>
-                    <p class="text-xs text-gray-500 mb-4">Meliputi Pajak Daerah, Retribusi dan Lain-lain Tahun 2026 (s.d
-                        April)</p>
+                    <p class="text-xs text-gray-500 mb-4">Pajak Daerah, Retribusi dan Lain-lain Tahun 2026 (s.d April)
+                    </p>
                     <div class="h-[250px] flex items-center justify-center">
                         <canvas id="trendChartMain"></canvas>
                     </div>
                 </div>
-            </div>
 
-            <!-- ROW 2 -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                <!-- Tren Realisasi PAD - Donut -->
                 <div class="fade-up bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
                     <h3 class="font-bold text-gray-800 mb-2">Komposisi Jenis Pendapatan</h3>
+                    <p class="text-xs text-gray-500 mb-4">Berdasarkan kontribusi tiap jenis pajak</p>
                     <div class="h-[250px] flex items-center justify-center">
                         <canvas id="donutChartMain"></canvas>
                     </div>
                 </div>
-
-                <!-- Target Realisasi - Line -->
-                <div class="fade-up bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                    <h3 class="font-bold text-gray-800 mb-2">Target dan Realisasi</h3>
-                    <p class="text-xs text-gray-500 mb-4">Tren Realisasi Pendapatan Daerah Tahun 2025 (s.d Desember)</p>
-                    <div class="h-[250px] flex items-center justify-center">
-                        <canvas id="trendChartTarget"></canvas>
-                    </div>
-                </div>
             </div>
 
-            <!-- ROW 3 -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                <!-- Target Realisasi - Pie -->
-                <div class="fade-up bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                    <h3 class="font-bold text-gray-800 mb-2">Komposisi Target Realisasi</h3>
-                    <div class="h-[250px] flex items-center justify-center">
-                        <canvas id="pieChart"></canvas>
-                    </div>
-                </div>
-
-                <!-- Tren Penerimaan -->
+            <!-- ═══ ROW 3: TREN PENERIMAAN ═══ -->
+            <div class="grid grid-cols-1 lg:grid-cols-1 gap-5">
                 <div class="fade-up bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
                     <h3 class="font-bold text-gray-800 mb-2">Tren Target dan Realisasi Penerimaan</h3>
-                    <p class="text-xs text-gray-500 mb-4">Provinsi Jawa Tengah Tahun 2025 (s.d Desember)</p>
+                    <p class="text-xs text-gray-500 mb-4">Persentase Capaian Realisasi per Jenis Penerimaan - Tahun 2025
+                    </p>
                     <div class="h-[250px] flex items-center justify-center">
                         <canvas id="trenChart"></canvas>
                     </div>
                 </div>
             </div>
 
-            <!-- ROW 4 -->
+            <!-- ═══ ROW 4: TREN PKB-BBNKB ═══ -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                <!-- Tren PKB-BBKB Chart 1 -->
                 <div class="fade-up bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                    <h3 class="font-bold text-gray-800 mb-2">Tren Target dan Realisasi PKB dan BBNKB</h3>
-                    <p class="text-xs text-gray-500 mb-4">Seluruh UPPD di Provinsi Jawa Tengah Tahun 2025 (s.d Desember)
-                    </p>
+                    <h3 class="font-bold text-gray-800 mb-2">Tren Target dan Realisasi PKB-BBNKB</h3>
+                    <p class="text-xs text-gray-500 mb-4">Seluruh UPPD Provinsi Jawa Tengah Tahun 2025</p>
                     <div class="h-[300px] flex items-center justify-center">
                         <canvas id="pkbChart"></canvas>
                     </div>
                 </div>
 
-                <!-- Tren PKB-BBKB Chart 2 -->
                 <div class="fade-up bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                    <h3 class="font-bold text-gray-800 mb-2">Tren Realisasi PAD dan BBNKB Berdasarkan Potensi</h3>
-                    <p class="text-xs text-gray-500 mb-4">Analisis tren berdasarkan potensi penerimaan PAD dan BBNKB</p>
+                    <h3 class="font-bold text-gray-800 mb-2">Realisasi PKB dan BBNKB Berdasarkan Potensi</h3>
+                    <p class="text-xs text-gray-500 mb-4">Analisis tren capaian terhadap potensi penerimaan</p>
                     <div class="h-[300px] flex items-center justify-center">
                         <canvas id="potensiChart"></canvas>
                     </div>
                 </div>
             </div>
 
-            <!-- ROW 5 -->
+            <!-- ═══ ROW 5: TREN JENIS TRANSAKSI ═══ -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                <!-- Tren Jenis Transaksi - Bar -->
                 <div class="fade-up bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
                     <h3 class="font-bold text-gray-800 mb-2">Tren Jenis Transaksi Samsat</h3>
-                    <p class="text-xs text-gray-500 mb-4">Provinsi Jawa Tengah Tahun 2026</p>
+                    <p class="text-xs text-gray-500 mb-4">Tren Transaksi per Bulan Tahun 2026 (Jan - Apr)</p>
                     <div class="h-[280px] flex items-center justify-center">
                         <canvas id="barChartMain"></canvas>
                     </div>
                 </div>
 
-                <!-- Tren Jenis Transaksi - Donut -->
                 <div class="fade-up bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
                     <h3 class="font-bold text-gray-800 mb-2">Distribusi Jenis Transaksi</h3>
+                    <p class="text-xs text-gray-500 mb-4">Proporsi 6 Jenis Transaksi Samsat</p>
                     <div class="h-[280px] flex items-center justify-center">
                         <canvas id="donutChartTransaksi"></canvas>
                     </div>
                 </div>
             </div>
 
-            <!-- ROW 6 -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                <!-- Tren Loket -->
+            <!-- ═══ ROW 6: TREN LOKET ═══ -->
+            <div class="grid grid-cols-1 lg:grid-cols-1 gap-5">
                 <div class="fade-up bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
                     <h3 class="font-bold text-gray-800 mb-2">Tren Jenis Loket Layanan Samsat</h3>
-                    <p class="text-xs text-gray-500 mb-4">Analisis tren penggunaan berbagai jenis loket layanan Samsat
-                    </p>
+                    <p class="text-xs text-gray-500 mb-4">Tren Penggunaan 5 Jenis Loket Layanan - Tahun 2026</p>
                     <div class="h-[300px] flex items-center justify-center">
                         <canvas id="loketChart"></canvas>
                     </div>
@@ -613,48 +587,6 @@
                         legend: { position: "right", labels: { boxWidth: 12, font: { size: 11 } } },
                         tooltip: { callbacks: { label: ctx => `${ctx.label}: ${ctx.raw}%` } }
                     }
-                }
-            });
-
-            // ───────────────── TARGET REALISASI - LINE ─────────────────
-            new Chart(document.getElementById('trendChartTarget'), {
-                type: 'line',
-                data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
-                    datasets: [{
-                        label: 'Realisasi',
-                        data: [0.8, 1.5, 2.1, 3.4, 4.2, 5.2, 6.1, 7.3, 8.4, 9.2, 10.1, 11.1],
-                        borderColor: '#1a3c8f',
-                        backgroundColor: 'rgba(26, 60, 143, 0.1)',
-                        borderWidth: 2,
-                        tension: 0.35,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { grid: { color: '#e5e7eb' } }, x: { grid: { display: false } } }
-                }
-            });
-
-            // ───────────────── TARGET REALISASI - PIE ─────────────────
-            new Chart(document.getElementById('pieChart'), {
-                type: 'doughnut',
-                data: {
-                    labels: ['PKB', 'BBNKB', 'PBBKB', 'Pajak Rokok'],
-                    datasets: [{
-                        data: [36, 16, 24, 24],
-                        backgroundColor: ['#ef4444', '#2dd4bf', '#facc15', '#3b82f6'],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    cutout: "70%",
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: "right", labels: { boxWidth: 12, font: { size: 11 } } } }
                 }
             });
 
