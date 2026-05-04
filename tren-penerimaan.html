@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tren Target dan Realisasi Penerimaan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link rel="icon" href="img/logojateng.png" />
+    <link href="style.css" rel="stylesheet" />
+    <script src="script.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] },
+                    colors: {
+                        primary: { DEFAULT: '#1a3c8f', light: '#2450b5', dark: '#0f2660' },
+                        accent: { DEFAULT: '#22c55e', dark: '#16a34a' },
+                        surface: '#f0f4ff',
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .tabular-nums {
+            font-variant-numeric: tabular-nums;
+        }
+
+        .fin-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .fin-table thead tr {
+            background: #f8faff;
+        }
+
+        .fin-table th {
+            padding: 10px 16px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #6b7280;
+            border-bottom: 2px solid #e5e7eb;
+            white-space: nowrap;
+        }
+
+        .fin-table td {
+            padding: 10px 16px;
+            font-size: 13px;
+            border-bottom: 1px solid #f3f4f6;
+            color: #374151;
+        }
+
+        .fin-table tbody tr:hover {
+            background: #eff6ff;
+            transition: background .15s;
+        }
+
+        .fin-table tfoot td {
+            padding: 12px 16px;
+            font-size: 13px;
+            font-weight: 700;
+            border-top: 2px solid #e5e7eb;
+            background: #f0f4ff;
+        }
+
+        .pct-pill {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+    </style>
+</head>
+
+<body class="bg-surface font-sans text-gray-800 flex h-screen overflow-auto">
+
+    <div id="sidebar-placeholder"></div>
+
+    <div class="flex-1 flex flex-col min-w-0 overflow-auto">
+        <div id="topbar-placeholder"></div>
+
+        <main class="flex-1 flex flex-col px-6 py-5">
+            <div class="fade-up bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col p-6 gap-6">
+
+                <!-- HEADER -->
+                <div class="panel-head">
+                    <h3>Tren Target dan Realisasi Penerimaan</h3>
+                    <p class="text-gray-500 text-sm mt-1">Provinsi Jawa Tengah Tahun 2025</p>
+                </div>
+
+                <!-- CHART -->
+                <div style="width:100%; height:320px; position:relative;">
+                    <canvas id="trenChart"></canvas>
+                </div>
+
+                <!-- TABLE -->
+                <div class="flex flex-col gap-2">
+                    <h4 class="text-sm font-bold text-gray-700">Detail Realisasi Penerimaan</h4>
+                    <div class="overflow-x-auto rounded-xl border border-gray-100">
+                        <table class="fin-table">
+                            <thead>
+                                <tr>
+                                    <th style="text-align:left;">Jenis Penerimaan</th>
+                                    <th style="text-align:center;">Target</th>
+                                    <th style="text-align:center;">Realisasi</th>
+                                    <th style="text-align:center;">Sisa</th>
+                                    <th style="text-align:center;">Capaian</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableTren"></tbody>
+                            <tfoot id="tableFoot"></tfoot>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        loadLayouts('Tren Target dan Realisasi', 'Penerimaan');
+
+        const data = [
+            { label: 'PKB', target: 7_323_000, realisasi: 6_653_285 },
+            { label: 'BBNKB', target: 3_100_000, realisasi: 2_117_610 },
+            { label: 'PBBKB', target: 1_200_000, realisasi: 1_232_880 },
+            { label: 'PAP', target: 450_000, realisasi: 498_240 },
+            { label: 'ROKOK', target: 980_000, realisasi: 807_912 },
+            { label: 'PAB', target: 12_000, realisasi: 48_149 },
+            { label: 'MBLB', target: 130_000, realisasi: 137_384 },
+            { label: 'USAHA', target: 6_400, realisasi: 40_208 },
+            { label: 'LAIN-LAIN', target: 249_397, realisasi: 176_884 },
+        ];
+
+        data.forEach(d => {
+            d.persen = (d.realisasi / d.target) * 100;
+            d.sisa = d.target - d.realisasi;
+        });
+
+        // Warna unik per jenis — selaras antara chart dan tabel
+        const chartColors = [
+            '#3b82f6', // PKB       — biru
+            '#8b5cf6', // BBNKB     — ungu
+            '#f59e0b', // PBBKB     — amber
+            '#10b981', // PAP       — hijau teal
+            '#ef4444', // ROKOK     — merah
+            '#06b6d4', // PAB       — cyan
+            '#f97316', // MBLB      — oranye
+            '#ec4899', // USAHA     — pink
+            '#6b7280', // LAIN-LAIN — abu
+        ];
+
+        function fmt(val) {
+            const abs = Math.abs(val), sign = val < 0 ? '-' : '';
+            if (abs >= 1_000_000) return sign + (abs / 1_000_000).toFixed(2) + ' T';
+            if (abs >= 1_000) return sign + (abs / 1_000).toFixed(1) + ' M';
+            return sign + abs.toLocaleString('id-ID') + ' Jt';
+        }
+
+        function pctPill(p) {
+            const style = p >= 100 ? 'background:#dcfce7;color:#166534'
+                : p >= 80 ? 'background:#fef9c3;color:#854d0e'
+                    : 'background:#fee2e2;color:#991b1b';
+            return `<span class="pct-pill tabular-nums" style="${style}">${p.toFixed(1)}%</span>`;
+        }
+
+        // ISI TBODY
+        const tableTren = document.getElementById('tableTren');
+        data.forEach((d, i) => {
+            const sisaStyle = d.sisa <= 0
+                ? 'color:#16a34a;font-weight:600'
+                : 'color:#dc2626;font-weight:600';
+            tableTren.innerHTML += `
+            <tr>
+                <td>
+                    <span style="display:inline-block;width:10px;height:10px;border-radius:50%;
+                          background:${chartColors[i]};margin-right:8px;vertical-align:middle;"></span>
+                    <span style="font-weight:600;">${d.label}</span>
+                </td>
+                <td class="tabular-nums" style="text-align:center;">${fmt(d.target)}</td>
+                <td class="tabular-nums" style="text-align:center;font-weight:600;">${fmt(d.realisasi)}</td>
+                <td class="tabular-nums" style="text-align:center;${sisaStyle}">${fmt(d.sisa)}</td>
+                <td style="text-align:center;">${pctPill(d.persen)}</td>
+            </tr>`;
+        });
+
+        // BARIS TOTAL (tfoot)
+        const totalTarget = data.reduce((s, d) => s + d.target, 0);
+        const totalRealisasi = data.reduce((s, d) => s + d.realisasi, 0);
+        const totalSisa = totalTarget - totalRealisasi;
+        const totalPersen = (totalRealisasi / totalTarget) * 100;
+        const sisaTotalStyle = totalSisa <= 0 ? 'color:#16a34a' : 'color:#dc2626';
+
+        document.getElementById('tableFoot').innerHTML = `
+        <tr>
+            <td>TOTAL CAPAIAN</td>
+            <td class="tabular-nums" style="text-align:center;">${fmt(totalTarget)}</td>
+            <td class="tabular-nums" style="text-align:center;">${fmt(totalRealisasi)}</td>
+            <td class="tabular-nums" style="text-align:center;${sisaTotalStyle}">${fmt(totalSisa)}</td>
+            <td style="text-align:center;">${pctPill(totalPersen)}</td>
+        </tr>`;
+
+        // CHART
+        const targetLine = {
+            id: 'targetLine',
+            afterDraw(chart) {
+                const { ctx, chartArea: { top, bottom }, scales: { x } } = chart;
+                const xPos = x.getPixelForValue(100);
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(xPos, top);
+                ctx.lineTo(xPos, bottom);
+                ctx.setLineDash([6, 4]);
+                ctx.strokeStyle = '#dc2626';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+                ctx.setLineDash([]);
+                ctx.fillStyle = '#dc2626';
+                ctx.font = '11px Plus Jakarta Sans';
+                ctx.fillText('100%', xPos + 5, top + 13);
+                ctx.restore();
+            }
+        };
+
+        const maxPersen = Math.max(...data.map(d => d.persen));
+        const chartMax = Math.ceil(maxPersen / 50) * 50 + 50;
+
+        new Chart(document.getElementById('trenChart'), {
+            type: 'bar',
+            data: {
+                labels: data.map(d => d.label),
+                datasets: [{
+                    label: 'Realisasi (%)',
+                    data: data.map(d => parseFloat(d.persen.toFixed(2))),
+                    backgroundColor: chartColors,
+                    borderRadius: 6,
+                    barThickness: 22
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => {
+                                const d = data[ctx.dataIndex];
+                                return [
+                                    ` Realisasi : ${fmt(d.realisasi)}`,
+                                    ` Target    : ${fmt(d.target)}`,
+                                    ` Capaian   : ${d.persen.toFixed(2)}%`
+                                ];
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: chartMax,
+                        ticks: { callback: v => v + '%' },
+                        grid: { color: '#f3f4f6' }
+                    },
+                    y: { grid: { display: false } }
+                }
+            },
+            plugins: [targetLine]
+        });
+    </script>
+</body>
+
+</html>

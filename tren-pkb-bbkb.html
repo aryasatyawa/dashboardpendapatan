@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tren Target dan Realisasi PKB dan BBNKB</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link rel="icon" href="img/logojateng.png" />
+    <link href="style.css" rel="stylesheet" />
+    <script src="script.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] },
+                    colors: {
+                        primary: { DEFAULT: '#1a3c8f', light: '#2450b5', dark: '#0f2660' },
+                        accent: { DEFAULT: '#22c55e', dark: '#16a34a' },
+                        surface: '#f0f4ff',
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-surface font-sans text-gray-800 flex h-screen overflow-hidden">
+
+    <!-- Sidebar Placeholder -->
+    <div id="sidebar-placeholder"></div>
+
+    <!-- Main content wrapper -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+
+        <!-- Topbar Placeholder -->
+        <div id="topbar-placeholder"></div>
+
+        <!-- PAGE CONTENT -->
+        <main class="flex-1 overflow-y-auto px-6 py-5 space-y-5">
+            <div class="fade-up bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+
+                <div class="panel-head">
+                    <h3>Tren Target dan Realisasi PKB dan BBNKB (Target Murni)</h3>
+                    <p class="text-gray-500 text-sm mt-1">
+                        Seluruh UPPD di Provinsi Jawa Tengah Tahun 2025 (s.d Bulan Desember)
+                    </p>
+                </div>
+
+                <div class="chart-wrap" style="height:600px">
+                    <canvas id="pkbChart"></canvas>
+                </div>
+
+                <!-- Keterangan -->
+                <div class="mt-6 text-sm text-gray-600 leading-relaxed">
+                    <p><strong>Keterangan:</strong></p>
+                    <ul class="list-disc ml-5 mt-2 space-y-1">
+                        <li>Bar merah menunjukkan realisasi PKB.</li>
+                        <li>Bar hijau tosca menunjukkan realisasi BBNKB.</li>
+                        <li>Garis biru menunjukkan target masing-masing daerah.</li>
+                        <li>Perbandingan membantu melihat daerah yang over/under target.</li>
+                    </ul>
+
+                    <!-- TABEL DATA PKB & BBNKB -->
+                    <div class="mt-6 overflow-auto">
+                        <table class="finance-table">
+                            <thead>
+                                <tr>
+                                    <th>UPPD</th>
+                                    <th>PKB (M)</th>
+                                    <th>BBNKB (M)</th>
+                                    <th>Target (M)</th>
+                                    <th>% Capaian</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablePKB"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="fade-up bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <h2 class="font-extrabold text-xl text-gray-800 mb-4">Tren Target dan Realisasi PAD dan BBNKB
+                    Berdasarkan Potensi</h2>
+                <p class="text-gray-600 mb-6">Analisis tren berdasarkan potensi penerimaan PAD dan BBNKB.</p>
+
+                <!-- Placeholder for chart -->
+                <div class="chart-wrap">
+                    <canvas id="potensiChart"></canvas>
+                </div>
+
+                <p class="text-sm text-gray-500 mt-4">
+                    Keterangan: Grafik menunjukkan perbandingan realisasi PKB dan BBNKB terhadap target potensi (100%)
+                    pada masing-masing UPPD. Semakin mendekati 100%, semakin optimal realisasi terhadap potensi.
+                </p>
+
+                <!-- TABEL DATA POTENSI -->
+                <div class="mt-6 overflow-auto">
+                    <table class="finance-table">
+                        <thead>
+                            <tr>
+                                <th>UPPD</th>
+                                <th>PKB (%)</th>
+                                <th>BBNKB (%)</th>
+                                <th>Gap ke 100%</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablePotensi"></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+
+            loadLayouts('Tren Target dan Realisasi', 'PKB dan BBNKB').then(() => {
+                const filterContainer = document.querySelector('#topbar .grid');
+                if (filterContainer) filterContainer.remove();
+            });
+
+            // =========================
+            // CHART 1: PKB & BBNKB
+            // =========================
+            const labelsPKB = [
+                'Kota Semarang I', 'Kota Semarang II', 'Kota Semarang III', 'Kota Salatiga',
+                'Kab. Semarang', 'Kab. Kendal', 'Kab. Demak', 'Kab. Grobogan',
+                'Kota Surakarta', 'Kab. Sukoharjo', 'Kab. Klaten', 'Kab. Boyolali'
+            ];
+
+            const dataPKB = [200, 180, 120, 60, 140, 110, 130, 100, 150, 140, 160, 120];
+            const dataBBNKB = [90, 80, 70, 30, 50, 60, 80, 70, 60, 75, 65, 55];
+            const targetPKB = [230, 210, 160, 80, 150, 130, 140, 120, 170, 160, 180, 140];
+
+            const ctxPKB = document.getElementById('pkbChart');
+
+            const targetLinePlugin = {
+                id: 'targetLine',
+                afterDatasetsDraw(chart) {
+                    const { ctx, scales: { x, y } } = chart;
+
+                    chart.data.labels.forEach((_, i) => {
+                        const yPos = y.getPixelForValue(i);
+                        const xPos = x.getPixelForValue(targetPKB[i]);
+
+                        ctx.save();
+                        ctx.beginPath();
+                        ctx.moveTo(xPos, yPos - 10);
+                        ctx.lineTo(xPos, yPos + 10);
+                        ctx.lineWidth = 2;
+                        ctx.strokeStyle = '#3b82f6';
+                        ctx.stroke();
+                        ctx.restore();
+                    });
+                }
+            };
+
+            new Chart(ctxPKB, {
+                type: 'bar',
+                data: {
+                    labels: labelsPKB,
+                    datasets: [
+                        {
+                            label: 'PKB',
+                            data: dataPKB,
+                            backgroundColor: '#ef4444',
+                            borderRadius: 4,
+                            barThickness: 10
+                        },
+                        {
+                            label: 'BBNKB',
+                            data: dataBBNKB,
+                            backgroundColor: '#14b8a6',
+                            borderRadius: 4,
+                            barThickness: 10
+                        }
+                    ]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: 250,
+                            ticks: { callback: val => val + 'M' }
+                        },
+                        y: { grid: { display: false } }
+                    }
+                },
+                plugins: [targetLinePlugin]
+            });
+
+            // ===== TABLE PKB =====
+            const tablePKB = document.getElementById("tablePKB");
+
+            labelsPKB.forEach((label, i) => {
+                const total = dataPKB[i] + dataBBNKB[i];
+                const persen = ((total / targetPKB[i]) * 100).toFixed(1);
+
+                tablePKB.innerHTML += `
+            <tr>
+                <td>${label}</td>
+                <td>${dataPKB[i]}</td>
+                <td>${dataBBNKB[i]}</td>
+                <td>${targetPKB[i]}</td>
+                <td>
+                    <span class="badge ${persen >= 100 ? 'green' : persen >= 80 ? 'amber' : 'blue'}">
+                        ${persen}%
+                    </span>
+                </td>
+            </tr>
+        `;
+            });
+
+            // =========================
+            // CHART 2: POTENSI
+            // =========================
+            const labelsPotensi = [
+                "Kota Semarang I", "Kota Semarang II", "Kota Salatiga", "Kab. Semarang",
+                "Kab. Kendal", "Kab. Demak", "Kab. Grobogan", "Kota Surakarta",
+                "Kab. Sukoharjo", "Kab. Klaten", "Kab. Boyolali", "Kab. Sragen",
+                "Kab. Karanganyar", "Kab. Wonogiri", "Kab. Pati", "Kab. Kudus",
+                "Kab. Jepara", "Kab. Rembang", "Kab. Blora", "Kota Pekalongan",
+                "Kab. Pekalongan", "Kab. Batang", "Kab. Pemalang", "Kota Tegal",
+                "Kab. Tegal", "Kab. Brebes"
+            ];
+
+            const pkbPotensi = [
+                27.4, 26.7, 25.8, 24.8, 24.3, 25.5, 25.4, 25.7,
+                25.1, 24.8, 24.0, 24.5, 25.4, 24.3, 26.7, 25.0,
+                24.7, 25.2, 24.5, 25.0, 25.0, 26.0, 24.7, 25.2,
+                25.3, 25.5
+            ];
+
+            const bbnkbPotensi = [
+                28.5, 27.0, 29.0, 30.1, 31.0, 32.1, 34.0, 29.5,
+                28.2, 30.5, 31.2, 31.1, 32.0, 30.8, 38.2, 31.5,
+                33.2, 32.0, 30.7, 33.2, 35.2, 35.0, 32.5, 30.2,
+                31.5, 32.0
+            ];
+
+            const ctxPotensi = document.getElementById("potensiChart");
+
+            new Chart(ctxPotensi, {
+                type: 'bar',
+                data: {
+                    labels: labelsPotensi,
+                    datasets: [
+                        {
+                            label: 'PKB (%)',
+                            data: pkbPotensi,
+                            backgroundColor: '#ef4444',
+                            borderRadius: 6
+                        },
+                        {
+                            label: 'BBNKB (%)',
+                            data: bbnkbPotensi,
+                            backgroundColor: '#2dd4bf',
+                            borderRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: { callback: val => val + '%' }
+                        },
+                        y: { grid: { display: false } }
+                    }
+                }
+            });
+
+            // ===== TABLE POTENSI =====
+            const tablePotensi = document.getElementById("tablePotensi");
+
+            labelsPotensi.forEach((label, i) => {
+
+                const avg = (pkbPotensi[i] + bbnkbPotensi[i]) / 2;
+                const gap = (100 - avg).toFixed(1);
+
+                let status = 'blue';
+                if (avg >= 90) status = 'green';
+                else if (avg >= 75) status = 'amber';
+
+                tablePotensi.innerHTML += `
+            <tr>
+                <td>${label}</td>
+                <td>${pkbPotensi[i]}%</td>
+                <td>${bbnkbPotensi[i]}%</td>
+                <td>${gap}%</td>
+                <td>
+                    <span class="badge ${status}">
+                        ${avg.toFixed(1)}%
+                    </span>
+                </td>
+            </tr>
+        `;
+            });
+
+        });
+    </script>
+</body>
+
+</html>

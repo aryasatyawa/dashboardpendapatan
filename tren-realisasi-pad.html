@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tren Realisasi Pendapatan Daerah</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link rel="icon" href="img/logojateng.png" />
+    <link href="style.css" rel="stylesheet" />
+    <script src="script.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] },
+                    colors: {
+                        primary: { DEFAULT: '#1a3c8f', light: '#2450b5', dark: '#0f2660' },
+                        accent: { DEFAULT: '#22c55e', dark: '#16a34a' },
+                        surface: '#f0f4ff',
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-surface font-sans text-gray-800 flex h-screen overflow-hidden">
+
+    <!-- Sidebar -->
+    <div id="sidebar-placeholder"></div>
+
+    <!-- Main -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+
+        <!-- Topbar -->
+        <div id="topbar-placeholder"></div>
+
+        <!-- CONTENT -->
+        <main class="flex-1 overflow-y-auto px-6 py-5 space-y-5">
+
+            <!-- HEADER (DISAMAKAN) -->
+            <div class="fade-up bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <h2 class="font-extrabold text-xl text-gray-800 mb-2">
+                    Tren Realisasi Pendapatan Daerah
+                </h2>
+                <p class="text-gray-500 text-sm">
+                    Provinsi Jawa Tengah Tahun 2025
+                </p>
+            </div>
+
+            <!-- CHART AREA (FULL WIDTH) -->
+            <div class="space-y-5">
+
+                <!-- LINE CHART (PRIMARY FOCUS) -->
+                <div class="fade-up bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-2">
+                        <div>
+                            <h3 class="font-bold text-gray-800 text-lg">
+                                Tren Target vs Realisasi
+                            </h3>
+                            <p class="text-sm text-gray-500">
+                                Seluruh jenis Pendapatan Asli Daerah Tahun 2025
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="h-[420px]">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- DONUT + SUMMARY -->
+                <div class="grid md:grid-cols-2 gap-5">
+
+                    <!-- DONUT -->
+                    <div class="fade-up bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                        <div class="mb-4">
+                            <h3 class="font-bold text-gray-800">
+                                Komposisi Realisasi Pendapatan
+                            </h3>
+                            <p class="text-sm text-gray-500">
+                                Berdasarkan kontribusi tiap jenis pajak
+                            </p>
+                        </div>
+
+                        <div class="h-[320px] flex items-center justify-center">
+                            <canvas id="donutChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- SIMPLE SUMMARY (REPLACEMENT CARD) -->
+                    <div class="fade-up bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+
+                        <h3 class="font-bold text-gray-800 mb-4">
+                            Ringkasan Kinerja
+                        </h3>
+
+                        <div class="space-y-4 text-sm">
+
+                            <div class="flex justify-between">
+                                <span class="text-gray-500">Total Target</span>
+                                <span class="font-semibold" id="cardTargetTotal">-</span>
+                            </div>
+
+                            <div class="flex justify-between">
+                                <span class="text-gray-500">Realisasi</span>
+                                <span class="font-semibold text-green-600" id="cardRealTotal">-</span>
+                            </div>
+
+                            <div class="flex justify-between">
+                                <span class="text-gray-500">Capaian</span>
+                                <span class="font-semibold" id="cardRealPct">-</span>
+                            </div>
+
+                            <div class="flex justify-between border-t pt-2">
+                                <span class="text-gray-500">Sisa Target</span>
+                                <span class="font-semibold text-red-500" id="cardRemainingTotal">-</span>
+                            </div>
+
+                            <!-- INSIGHT TAMBAHAN -->
+                            <div class="border-t pt-3 space-y-2 text-xs text-gray-600">
+
+                                <div class="flex justify-between">
+                                    <span>Kontributor Terbesar</span>
+                                    <span class="font-semibold text-gray-800" id="topContributor">-</span>
+                                </div>
+
+                                <div class="flex justify-between">
+                                    <span>Kinerja Terbaik</span>
+                                    <span class="font-semibold text-green-600" id="bestPerformance">-</span>
+                                </div>
+
+                                <div class="flex justify-between">
+                                    <span>Terendah</span>
+                                    <span class="font-semibold text-red-500" id="lowestPerformance">-</span>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Table Card -->
+            <section class="panel-card fade-up">
+
+                <div class="table-toolbar">
+                    <div>
+                        <h3>Target dan Realisasi Pendapatan Asli Daerah Tahun 2025</h3>
+                        <p>s.d Bulan Desember</p>
+                    </div>
+
+                    <select class="filter-select">
+                        <option>Target Murni</option>
+                        <option>Perubahan</option>
+                    </select>
+                </div>
+
+
+                <div class="table-scroll">
+                    <table class="finance-table">
+
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Uraian</th>
+                                <th>Target Murni (Rp)</th>
+                                <th>Terealisasi (Rp)</th>
+                                <th>%</th>
+                                <th>Belum Terealisasi</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="padTableBody">
+
+                            <tr class="group-row">
+                                <td>A.</td>
+                                <td>PAJAK DAERAH</td>
+                                <td>12.650.725.636.000</td>
+                                <td>10.979.301.160.056</td>
+                                <td data-percent="86.79"></td>
+                                <td>1.671.424.475.944</td>
+                            </tr>
+
+                            <tr>
+                                <td>1</td>
+                                <td>Pajak Kendaraan Bermotor (PKB)</td>
+                                <td>4.353.358.423.000</td>
+                                <td>3.956.910.623.400</td>
+                                <td data-percent="90.89"></td>
+                                <td>396.447.799.600</td>
+                            </tr>
+
+                            <tr>
+                                <td>2</td>
+                                <td>Bea Balik Nama Kendaraan Bermotor (BBNKB)</td>
+                                <td>2.549.433.805.000</td>
+                                <td>1.741.611.402.000</td>
+                                <td data-percent="68.31"></td>
+                                <td>807.822.403.000</td>
+                            </tr>
+
+                            <tr>
+                                <td>3</td>
+                                <td>Pajak Bahan Bakar Kendaraan Bermotor (PBBKB)</td>
+                                <td>2.619.000.000.000</td>
+                                <td>2.690.646.253.813</td>
+                                <td data-percent="102.74"></td>
+                                <td>0</td>
+                            </tr>
+
+                            <tr>
+                                <td>4</td>
+                                <td>Pajak Air Permukaan (PAP)</td>
+                                <td>18.900.000.000</td>
+                                <td>20.925.885.996</td>
+                                <td data-percent="110.72"></td>
+                                <td>0</td>
+                            </tr>
+
+                            <tr>
+                                <td>5</td>
+                                <td>Pajak Rokok</td>
+                                <td>3.088.000.000.000</td>
+                                <td>2.545.824.385.979</td>
+                                <td data-percent="82.44"></td>
+                                <td>542.175.614.021</td>
+                            </tr>
+
+                            <tr>
+                                <td>6</td>
+                                <td>Pajak Alat Berat</td>
+                                <td>33.408.000</td>
+                                <td>134.045.500</td>
+                                <td data-percent="401.24"></td>
+                                <td>0</td>
+                            </tr>
+
+                            <tr>
+                                <td>7</td>
+                                <td>Pajak Opsen MBLB</td>
+                                <td>22.000.000.000</td>
+                                <td>23.248.563.368</td>
+                                <td data-percent="105.68"></td>
+                                <td>0</td>
+                            </tr>
+
+                            <tr class="group-row">
+                                <td>B.</td>
+                                <td>RETRIBUSI DAERAH</td>
+                                <td>5.260.712.000</td>
+                                <td>9.859.581.500</td>
+                                <td data-percent="187.42"></td>
+                                <td>0</td>
+                            </tr>
+
+                            <tr>
+                                <td>1</td>
+                                <td>Penyediaan Tempat Kegiatan Usaha</td>
+                                <td>1.569.366.000</td>
+                                <td>9.859.581.500</td>
+                                <td data-percent="628.25"></td>
+                                <td>0</td>
+                            </tr>
+
+                            <tr>
+                                <td>2</td>
+                                <td>Penyediaan Tempat Khusus Parkir di Luar Badan Jalan</td>
+                                <td>2.500.483.500</td>
+                                <td>0</td>
+                                <td data-percent="0"></td>
+                                <td>2.500.483.500</td>
+                            </tr>
+
+                            <tr>
+                                <td>3</td>
+                                <td>Retribusi Pemanfaatan Aset Daerah</td>
+                                <td>1.190.862.500</td>
+                                <td>0</td>
+                                <td data-percent="0"></td>
+                                <td>1.190.862.500</td>
+                            </tr>
+
+                            <tr class="group-row">
+                                <td>C.</td>
+                                <td>LAIN-LAIN PENDAPATAN ASLI DAERAH YANG SAH</td>
+                                <td>160.000.000.000</td>
+                                <td>113.456.926.369</td>
+                                <td data-percent="70.91"></td>
+                                <td>46.543.073.631</td>
+                            </tr>
+
+                            <tr class="total-row">
+                                <td colspan="2">TOTAL</td>
+                                <td>12.815.986.348.000</td>
+                                <td>11.102.617.667.925</td>
+                                <td data-percent="86.63"></td>
+                                <td>1.713.368.680.075</td>
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+                </div>
+
+            </section>
+
+            <!-- KETERANGAN (DITAMBAHKAN BIAR KONSISTEN) -->
+            <div class="fade-up bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <h3 class="font-bold text-gray-800 mb-2">Keterangan</h3>
+                <ul class="list-disc ml-5 text-sm text-gray-600 space-y-1">
+                    <li>PKB: Pajak Kendaraan Bermotor</li>
+                    <li>BBNKB: Bea Balik Nama Kendaraan Bermotor</li>
+                    <li>PBBKB: Pajak Bahan Bakar Kendaraan Bermotor</li>
+                    <li>PAP & lainnya: kontribusi kecil namun tetap dihitung</li>
+                    <li>Grafik kiri menunjukkan tren bulanan</li>
+                    <li>Grafik kanan menunjukkan komposisi total</li>
+                </ul>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- SCRIPT -->
+    <script>
+
+        loadLayouts('Tren Realisasi Pendapatan Daerah', 'Provinsi Jawa Tengah Tahun 2025').then(() => {
+            const filterContainer = document.querySelector('#topbar .grid');
+            if (filterContainer) filterContainer.remove();
+        });
+
+        window.disableGlobalFilter = true;
+
+        function parseRupiah(value) {
+            return parseInt(String(value).replace(/\D/g, ''), 10) || 0;
+        }
+
+        function formatCurrency(value) {
+            return value.toLocaleString('id-ID');
+        }
+
+        function parsePadTable() {
+            const rows = [...document.querySelectorAll('#padTableBody tr')];
+            const parsed = [];
+            let currentGroup = '';
+
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+
+                // ===== HANDLE TOTAL ROW (karena colspan=2) =====
+                if (row.classList.contains('total-row')) {
+                    parsed.push({
+                        type: 'total',
+                        group: 'TOTAL',
+                        label: 'TOTAL',
+                        target: parseRupiah(cells[1]?.textContent || ''),
+                        realized: parseRupiah(cells[2]?.textContent || ''),
+                        percent: parseFloat(cells[3]?.dataset.percent || '0'),
+                        remaining: parseRupiah(cells[4]?.textContent || '')
+                    });
+                    return;
+                }
+
+                // ===== ROW NORMAL =====
+                const label = cells[1]?.textContent.trim() || '';
+                const target = parseRupiah(cells[2]?.textContent || '');
+                const realized = parseRupiah(cells[3]?.textContent || '');
+                const percent = parseFloat(cells[4]?.dataset.percent || '0');
+                const remaining = parseRupiah(cells[5]?.textContent || '');
+
+                if (row.classList.contains('group-row')) {
+                    currentGroup = label;
+
+                    parsed.push({
+                        type: 'group',
+                        group: label,
+                        label,
+                        target,
+                        realized,
+                        percent,
+                        remaining
+                    });
+                } else {
+                    parsed.push({
+                        type: 'item',
+                        group: currentGroup,
+                        label,
+                        target,
+                        realized,
+                        percent,
+                        remaining
+                    });
+                }
+            });
+
+            return parsed;
+        }
+
+        function updateSummaryCards(parsed) {
+            const totalRow = parsed.find(item => item.type === 'total');
+            if (!totalRow) return;
+
+            const totalTarget = totalRow.target;
+            const totalRealized = totalRow.realized;
+            const totalRemaining = totalRow.remaining;
+
+            const totalPercent = totalTarget
+                ? (totalRealized / totalTarget) * 100
+                : 0;
+
+            document.getElementById('cardTargetTotal').textContent =
+                'Rp ' + formatCurrency(totalTarget);
+
+            document.getElementById('cardRealTotal').textContent =
+                'Rp ' + formatCurrency(totalRealized);
+
+            document.getElementById('cardRealPct').textContent =
+                totalPercent.toFixed(2).replace('.', ',') + '%';
+
+            document.getElementById('cardRemainingTotal').textContent =
+                'Rp ' + formatCurrency(totalRemaining);
+
+            // insight tambahan
+            const items = parsed.filter(item => item.type === 'item' && item.target > 0);
+
+            const topContributor = items.reduce((a, b) =>
+                a.realized > b.realized ? a : b
+            );
+
+            const bestPerformance = items
+                .filter(i => i.percent > 0 && i.percent < 200)
+                .reduce((a, b) => a.percent > b.percent ? a : b);
+
+            const lowestPerformance = items.reduce((a, b) =>
+                a.percent < b.percent ? a : b
+            );
+
+            const contributionPct = totalRealized
+                ? (topContributor.realized / totalRealized) * 100
+                : 0;
+
+            document.getElementById('topContributor').textContent =
+                `${topContributor.label} (${contributionPct.toFixed(1)}%)`;
+
+            document.getElementById('bestPerformance').textContent =
+                `${bestPerformance.label} (${bestPerformance.percent.toFixed(1)}%)`;
+
+            document.getElementById('lowestPerformance').textContent =
+                `${lowestPerformance.label} (${lowestPerformance.percent.toFixed(1)}%)`;
+        }
+
+        function formatAxisValue(value) {
+            if (value >= 1_000_000_000_000) {
+                return (value / 1_000_000_000_000).toFixed(1).replace('.', ',') + ' T';
+            }
+            if (value >= 1_000_000_000) {
+                return (value / 1_000_000_000).toFixed(1).replace('.', ',') + ' M';
+            }
+            if (value >= 1_000_000) {
+                return (value / 1_000_000).toFixed(0).replace('.', ',') + ' Jt';
+            }
+            return value.toLocaleString('id-ID');
+        }
+
+        function initChartsFromTable() {
+            const parsed = parsePadTable();
+            const items = parsed.filter(item => item.type === 'item');
+
+            const labels = items.map(item => item.label);
+            const targetData = items.map(item => item.target);
+            const realizedData = items.map(item => item.realized);
+
+            const totalRealized = realizedData.reduce((sum, v) => sum + v, 0);
+
+            const trendCtx = document.getElementById('trendChart');
+
+            new Chart(trendCtx, {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [
+                        {
+                            label: 'Target',
+                            data: targetData,
+                            borderColor: '#1a3c8f',
+                            borderWidth: 3,
+                            tension: 0.3,
+                            pointRadius: 3,
+                        },
+                        {
+                            label: 'Realisasi',
+                            data: realizedData,
+                            borderColor: '#22c55e',
+                            borderWidth: 3,
+                            tension: 0.3,
+                            pointRadius: 3,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 20
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx =>
+                                    `${ctx.dataset.label}: Rp ${formatCurrency(ctx.raw)}`
+                            }
+                        },
+                        datalabels: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                maxRotation: 40,
+                                minRotation: 20
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: val => formatAxisValue(val),
+                                maxTicksLimit: 6
+                            }
+                        }
+                    }
+                }
+            });
+
+            // DONUT
+            // DONUT (OPTIMIZED)
+            const donutCtx = document.getElementById('donutChart');
+
+            // hitung total
+            const total = realizedData.reduce((sum, v) => sum + v, 0);
+
+            // pisahkan data besar & kecil
+            let majorLabels = [];
+            let majorData = [];
+            let othersTotal = 0;
+
+            items.forEach(item => {
+                const percent = total ? (item.realized / total) * 100 : 0;
+
+                if (percent >= 10) {
+                    majorLabels.push(item.label);
+                    majorData.push(item.realized);
+                } else {
+                    othersTotal += item.realized;
+                }
+            });
+
+            // tambah "Lainnya" kalau ada
+            if (othersTotal > 0) {
+                majorLabels.push('Lainnya');
+                majorData.push(othersTotal);
+            }
+
+            new Chart(donutCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: majorLabels,
+                    datasets: [{
+                        data: majorData,
+                        backgroundColor: [
+                            '#1a3c8f', '#22c55e', '#f59e0b',
+                            '#ef4444', '#8b5cf6', '#60a5fa', '#94a3b8'
+                        ]
+                    }]
+                },
+                options: {
+                    cutout: '65%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 12
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => {
+                                    const val = ctx.raw;
+                                    const pct = total
+                                        ? ((val / total) * 100).toFixed(1)
+                                        : 0;
+                                    return `${ctx.label}: Rp ${formatCurrency(val)} (${pct}%)`;
+                                }
+                            }
+                        },
+                        datalabels: {
+                            color: '#fff',
+                            font: { weight: 'bold', size: 11 },
+                            formatter: (val, ctx) => {
+                                const sum = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                                const pct = (val / sum) * 100;
+                                return pct >= 8 ? pct.toFixed(1) + '%' : '';
+                            }
+                        }
+                    }
+                },
+                plugins: [ChartDataLabels]
+            });
+
+            updateSummaryCards(parsed);
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            initChartsFromTable();
+            renderPercentBadges();
+
+            // === OBSERVER: AUTO-SYNC SUMMARY & CHARTS KETIKA TABEL BERUBAH ===
+            const tableBody = document.getElementById('padTableBody');
+            if (tableBody) {
+                const observer = new MutationObserver(() => {
+                    console.log('Tabel berubah, update ringkasan & chart...');
+                    initChartsFromTable();
+                    renderPercentBadges();
+                });
+
+                observer.observe(tableBody, {
+                    childList: true,
+                    subtree: true,
+                    characterData: true,
+                    attributes: true
+                });
+            }
+        });
+
+        function getBadgeClass(percent) {
+            if (percent <= 50) return 'bg-red-100 text-red-600';
+            if (percent <= 90) return 'bg-yellow-100 text-yellow-700';
+            return 'bg-green-100 text-green-600';
+        }
+
+        function renderPercentBadges() {
+            const cells = document.querySelectorAll('[data-percent]');
+
+            cells.forEach(cell => {
+                const val = parseFloat(cell.dataset.percent);
+
+                const badge = document.createElement('span');
+                badge.className = `px-2 py-1 rounded-full text-xs font-bold ${getBadgeClass(val)}`;
+                badge.textContent = val.toFixed(2).replace('.', ',') + ' %';
+
+                cell.innerHTML = '';
+                cell.appendChild(badge);
+            });
+        }
+
+    </script>
+
+</body>
+
+</html>

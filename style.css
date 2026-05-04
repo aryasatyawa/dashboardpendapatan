@@ -1,0 +1,415 @@
+/* ─── Mobile-friendly sidebar ─── */
+@media (max-width: 767px) {
+    #sidebar {
+        z-index: 30;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .main-shifted {
+        transform: translateX(256px);
+        transition: transform 0.3s ease-in-out;
+    }
+
+    /* Ensure content doesn't get cut off */
+    .flex-1.flex.flex-col {
+        transition: transform 0.3s ease-in-out;
+    }
+
+    /* Hide sidebar toggle when sidebar is open on mobile */
+    .sidebar-open~.flex-1 .flex.items-center button#sidebarToggle {
+        opacity: 0.5;
+    }
+
+    /* Mobile filter layout - single row with horizontal scroll if needed */
+    #topbar .filter-row {
+        padding-bottom: 4px;
+        -webkit-overflow-scrolling: touch;
+        min-width: 0;
+    }
+
+    #topbar {
+        position: relative;
+    }
+
+    #topbar .filter-row {
+        padding-bottom: 4px;
+        -webkit-overflow-scrolling: touch;
+        min-width: 0;
+        flex-shrink: 1;
+        position: relative;
+        z-index: 1;
+    }
+
+    #topbar .filter-row select {
+        font-size: 12px;
+        padding: 6px 8px;
+        min-width: 0;
+    }
+
+    #topbar button#sidebarToggle {
+        position: relative;
+        z-index: 20;
+    }
+
+    /* Mobile hero section improvements */
+    main .fade-up {
+        margin-bottom: 1rem;
+    }
+
+    /* Ensure hero section doesn't overflow on mobile */
+    main section.rounded-3xl {
+        margin: 0 1rem;
+        margin-bottom: 1rem;
+    }
+
+    /* Better spacing for mobile KPI cards */
+    .bg-white\/10.rounded-lg {
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* Sidebar open/closed states */
+#sidebar.sidebar-open {
+    transform: translateX(0) !important;
+}
+
+#sidebar.sidebar-closed {
+    transform: translateX(-100%) !important;
+    position: absolute !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+}
+
+/* ─── Responsive improvements ─── */
+@media (max-width: 640px) {
+    .metric-card {
+        padding: 20px;
+        min-height: 120px;
+    }
+
+    .metric-card h3 {
+        font-size: 22px;
+    }
+
+    .panel-card {
+        padding: 20px;
+    }
+
+    .chart-wrap {
+        min-height: 300px;
+    }
+
+    .chart-wrap--wide {
+        min-height: 350px;
+    }
+
+    /* Table improvements */
+    .finance-table {
+        font-size: 0.75rem;
+    }
+
+    .finance-table th,
+    .finance-table td {
+        padding: 8px 10px;
+    }
+
+    /* Topbar responsive */
+    #topbar .grid {
+        grid-template-columns: 1fr;
+        gap: 3px;
+    }
+
+    #topbar select {
+        font-size: 0.75rem;
+        padding: 8px 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .metric-card h3 {
+        font-size: 20px;
+    }
+
+    .panel-head h3 {
+        font-size: 18px;
+    }
+
+    .chart-wrap {
+        min-height: 250px;
+    }
+
+    .chart-wrap--wide {
+        min-height: 300px;
+    }
+
+    /* Stack cards vertically on very small screens */
+    .grid.grid-cols-1.md\\:grid-cols-3 {
+        grid-template-columns: 1fr;
+    }
+
+    .grid.grid-cols-1.lg\\:grid-cols-3 {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (min-width: 768px) {
+    main.space-y-5 {
+        row-gap: 1rem;
+    }
+
+    main>section.fade-up {
+        padding: 1.5rem;
+    }
+
+    main .grid.gap-5,
+    main .grid.gap-4.md\:gap-5 {
+        gap: 1rem !important;
+    }
+
+    main .flex.flex-wrap.gap-3.md\:gap-4,
+    main .flex.flex-col.gap-3.md\:gap-4 {
+        gap: 0.75rem !important;
+    }
+
+    main .bg-white\/10.backdrop-blur.rounded-xl.p-3.md\:p-4,
+    main .bg-accent.rounded-xl.p-3.md\:p-4 {
+        padding: 0.75rem !important;
+    }
+}
+
+/* ─── Sidebar active item ─── */
+.nav-item.active {
+    background: #1a3c8f;
+    color: #fff;
+}
+
+.nav-item.active svg {
+    stroke: #fff;
+}
+
+.nav-item:not(.active):hover {
+    background: #e8eeff;
+}
+
+/* ─── Donut animation ─── */
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-up-1 {
+    animation-delay: .05s;
+}
+
+.fade-up-2 {
+    animation-delay: .12s;
+}
+
+.fade-up-3 {
+    animation-delay: .20s;
+}
+
+.fade-up-4 {
+    animation-delay: .28s;
+}
+
+.fade-up {
+    animation: fadeUp .5s ease;
+}
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+
+.metric-card {
+    background: #fff;
+    border-radius: 22px;
+    padding: 24px;
+    border: 1px solid #dbe7ff;
+    box-shadow: 0 3px 12px rgba(40, 60, 120, .06);
+    min-height: 142px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.metric-card h3 {
+    font-size: 28px;
+    font-weight: 800;
+    margin-top: 10px;
+    color: #16388a;
+    line-height: 1.05;
+}
+
+.metric-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: #64748b;
+}
+
+.metric-card small {
+    display: block;
+    margin-top: 8px;
+    color: #94a3b8;
+}
+
+.metric-card.green {
+    border-left: 6px solid #16a34a;
+}
+
+.metric-card.amber {
+    border-left: 6px solid #f59e0b;
+}
+
+.metric-card.blue {
+    border-left: 6px solid #2563eb;
+}
+
+
+
+.panel-card {
+    background: #fff;
+    border-radius: 24px;
+    padding: 28px;
+    border: 1px solid #dbe7ff;
+    box-shadow: 0 3px 12px rgba(40, 60, 120, .05);
+}
+
+.panel-head {
+    margin-bottom: 20px;
+}
+
+.panel-head h3 {
+    font-size: 20px;
+    font-weight: 800;
+    color: #1e3a8a;
+}
+
+.chart-wrap {
+    min-height: 360px;
+    position: relative;
+}
+
+.chart-wrap--wide {
+    min-height: 520px;
+}
+
+.chart-wrap canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+@media (max-width: 1280px) {
+    .chart-wrap--wide {
+        min-height: 420px;
+    }
+}
+
+@media (max-width: 768px) {
+    .metric-card h3 {
+        font-size: 24px;
+    }
+}
+
+.table-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    gap: 20px;
+}
+
+.table-toolbar h3 {
+    font-size: 24px;
+    font-weight: 800;
+    color: #1e3a8a;
+}
+
+.table-toolbar p {
+    color: #64748b;
+    margin-top: 6px;
+}
+
+.filter-select {
+    padding: 12px 18px;
+    border-radius: 12px;
+    border: 1px solid #dbe7ff;
+}
+
+
+.table-scroll {
+    overflow: auto;
+}
+
+.finance-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    min-width: 1100px;
+}
+
+.finance-table th {
+    background: #eaf1ff;
+    padding: 14px;
+    text-align: left;
+    font-weight: 800;
+    color: #1e3a8a;
+}
+
+.finance-table td {
+    padding: 14px;
+    border-bottom: 1px solid #edf2ff;
+}
+
+.finance-table tr:hover {
+    background: #f8fbff;
+}
+
+.group-row {
+    background: #f2f6ff;
+    font-weight: 700;
+}
+
+.total-row {
+    background: #dbeafe;
+    font-weight: 800;
+}
+
+.badge {
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 12px;
+}
+
+.badge.green {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.badge.amber {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.badge.blue {
+    background: #dbeafe;
+    color: #1d4ed8;
+}

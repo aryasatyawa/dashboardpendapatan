@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tren Jenis Transaksi Samsat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link rel="icon" href="img/logojateng.png" />
+    <link href="style.css" rel="stylesheet" />
+    <script src="script.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] },
+                    colors: {
+                        primary: { DEFAULT: '#1a3c8f', light: '#2450b5', dark: '#0f2660' },
+                        accent: { DEFAULT: '#22c55e', dark: '#16a34a' },
+                        surface: '#f0f4ff',
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Legend custom */
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            border-radius: 10px;
+            border: 0.5px solid #e5e7eb;
+            background: #f9fafb;
+            cursor: pointer;
+            transition: border-color 0.15s, background 0.15s;
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .legend-item:hover {
+            border-color: #9ca3af;
+            background: #f3f4f6;
+        }
+
+        .legend-swatch {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+
+        .legend-label {
+            font-size: 13px;
+            color: #374151;
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .legend-value {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .legend-pct {
+            font-size: 12px;
+            font-weight: 600;
+            color: #111827;
+            min-width: 36px;
+            text-align: right;
+        }
+
+        .bar-track {
+            height: 3px;
+            background: #e5e7eb;
+            border-radius: 2px;
+            margin-top: 4px;
+            width: 100%;
+        }
+
+        .bar-fill {
+            height: 3px;
+            border-radius: 2px;
+            transition: width 0.6s ease;
+        }
+    </style>
+</head>
+
+<body class="bg-surface font-sans text-gray-800 flex h-screen overflow-hidden">
+
+    <!-- Sidebar Placeholder -->
+    <div id="sidebar-placeholder"></div>
+
+    <!-- Main content wrapper -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+
+        <!-- Topbar Placeholder -->
+        <div id="topbar-placeholder"></div>
+
+        <!-- PAGE CONTENT -->
+        <main class="flex-1 overflow-y-auto px-6 py-5 space-y-5">
+
+            <!-- HEADER -->
+            <div class="fade-up bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <h2 class="font-extrabold text-xl text-gray-800 mb-2">
+                    Tren Jenis Transaksi Samsat
+                </h2>
+                <p class="text-gray-500 text-sm">
+                    Daerah Provinsi Jawa Tengah Tahun 2026
+                </p>
+            </div>
+
+            <!-- ================= DONUT ================= -->
+            <div class="fade-up bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+
+                <h3 class="font-bold text-gray-800 mb-4">Distribusi Jenis Transaksi</h3>
+
+                <!-- STAT CARDS -->
+                <div class="flex gap-3 flex-wrap mb-6">
+                    <div class="flex-1 min-w-[110px] bg-gray-50 rounded-xl p-4 border border-gray-100">
+                        <p class="text-xs text-gray-400">Total Transaksi</p>
+                        <p class="text-xl font-bold text-gray-800">3.377.330</p>
+                        <p class="text-xs text-gray-400">Jan – Apr 2026</p>
+                    </div>
+                    <div class="flex-1 min-w-[110px] bg-gray-50 rounded-xl p-4 border border-gray-100">
+                        <p class="text-xs text-gray-400">Dominan</p>
+                        <p class="text-xl font-bold text-gray-800">PU</p>
+                        <p class="text-xs text-gray-400">91,6% dari total</p>
+                    </div>
+                    <div class="flex-1 min-w-[110px] bg-gray-50 rounded-xl p-4 border border-gray-100">
+                        <p class="text-xs text-gray-400">Jenis Transaksi</p>
+                        <p class="text-xl font-bold text-gray-800">6</p>
+                        <p class="text-xs text-gray-400">Kategori aktif</p>
+                    </div>
+                </div>
+
+                <!-- DONUT CHART — centered, larger -->
+                <div class="flex flex-col items-center">
+
+                    <!-- Canvas wrapper with center overlay text -->
+                    <div class="relative" style="width: 320px; height: 320px;">
+                        <canvas id="donutChart" role="img"
+                            aria-label="Distribusi jenis transaksi Samsat 2026. PU mendominasi 91,6%.">
+                            Distribusi: PU 91.6%, KB 7.1%, MMLP 0.5%, MKDP 0.4%, MMDP 0.2%, MKLP 0.2%.
+                        </canvas>
+                        <!-- Center text overlay -->
+                        <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                            <span class="text-xs text-gray-400 uppercase tracking-widest">Total</span>
+                            <span class="text-2xl font-extrabold text-gray-800">3,38 Jt</span>
+                            <span class="text-xs text-gray-400">transaksi</span>
+                        </div>
+                    </div>
+
+                    <!-- LEGEND below chart -->
+                    <div id="donutLegend" class="mt-6 flex flex-wrap gap-3 justify-center w-full max-w-xl"></div>
+
+                </div>
+
+                <!-- TABLE -->
+                <div class="mt-8 overflow-x-auto max-w-full">
+                    <table class="finance-table min-w-full w-full">
+                        <thead>
+                            <tr>
+                                <th>Jenis</th>
+                                <th>Jumlah</th>
+                                <th>%</th>
+                            </tr>
+                        </thead>
+                        <tbody id="donutTable"></tbody>
+                    </table>
+                </div>
+
+            </div>
+
+            <!-- ================= BAR CHART ================= -->
+            <div class="fade-up bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+
+                <h3 class="font-bold text-gray-800 mb-4">Tren Transaksi per Bulan</h3>
+
+                <div class="h-[320px] flex items-center justify-center">
+                    <canvas id="barChart"></canvas>
+                </div>
+
+                <!-- TABLE -->
+                <div class="mt-6 overflow-x-auto max-w-full">
+                    <table class="finance-table min-w-full w-full">
+                        <thead>
+                            <tr>
+                                <th>Bulan</th>
+                                <th>PU</th>
+                                <th>KB</th>
+                                <th>MMLP</th>
+                                <th>MKDP</th>
+                                <th>MMDP</th>
+                                <th>MKLP</th>
+                            </tr>
+                        </thead>
+                        <tbody id="barTable"></tbody>
+                    </table>
+                </div>
+
+            </div>
+
+            <!-- INSIGHT -->
+            <div class="fade-up bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <h3 class="font-bold text-gray-800 mb-2">Insight</h3>
+                <p class="text-sm text-gray-600">
+                    Jenis transaksi <strong>PU (Pendaftaran Ulang)</strong> mendominasi sebesar ±91%.
+                </p>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        loadLayouts('Tren Jenis Transaksi Samsat', '').then(() => {
+            const filterContainer = document.querySelector('#topbar .grid');
+            if (filterContainer) filterContainer.remove();
+        });
+
+        // ================= DATA =================
+        const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+
+        const datasets = [
+            { label: 'PU', data: [870000, 720000, 750000, 753330, 0, 0, 0, 0, 0, 0, 0, 0], color: '#f87171' },
+            { label: 'KB', data: [70000, 65000, 68000, 71000, 0, 0, 0, 0, 0, 0, 0, 0], color: '#2dd4bf' },
+            { label: 'MMLP', data: [5000, 4000, 4500, 4800, 0, 0, 0, 0, 0, 0, 0, 0], color: '#facc15' },
+            { label: 'MKDP', data: [3000, 2800, 2900, 3100, 0, 0, 0, 0, 0, 0, 0, 0], color: '#60a5fa' },
+            { label: 'MMDP', data: [2000, 1800, 1900, 2100, 0, 0, 0, 0, 0, 0, 0, 0], color: '#e879f9' },
+            { label: 'MKLP', data: [1500, 1200, 1300, 1400, 0, 0, 0, 0, 0, 0, 0, 0], color: '#fb923c' }
+        ];
+
+        // ================= BAR CHART =================
+        const barChart = new Chart(document.getElementById('barChart'), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: datasets.map(d => ({
+                    label: d.label,
+                    data: d.data,
+                    backgroundColor: d.color,
+                    borderRadius: 6
+                }))
+            },
+            options: {
+                responsive: true,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: { position: 'bottom' },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => `${ctx.dataset.label}: ${ctx.raw.toLocaleString('id-ID')}`
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        grid: { color: '#e5e7eb' },
+                        ticks: { callback: val => val.toLocaleString('id-ID') }
+                    },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        // ================= BAR TABLE =================
+        document.getElementById('barTable').innerHTML = labels.map((month, i) => `
+            <tr>
+                <td>${month}</td>
+                ${datasets.map(d => `<td>${d.data[i].toLocaleString('id-ID')}</td>`).join('')}
+            </tr>
+        `).join('');
+
+        // ================= DONUT DATA =================
+        const donutData = [
+            { label: 'PU', value: 3093330, color: '#f87171' },
+            { label: 'KB', value: 239000, color: '#2dd4bf' },
+            { label: 'MMLP', value: 17000, color: '#facc15' },
+            { label: 'MKDP', value: 13000, color: '#60a5fa' },
+            { label: 'MMDP', value: 8000, color: '#e879f9' },
+            { label: 'MKLP', value: 7000, color: '#fb923c' },
+        ];
+
+        const total = donutData.reduce((s, d) => s + d.value, 0);
+
+        // ================= DONUT CHART =================
+        const donutChart = new Chart(document.getElementById('donutChart'), {
+            type: 'doughnut',
+            data: {
+                labels: donutData.map(d => d.label),
+                datasets: [{
+                    data: donutData.map(d => d.value),
+                    backgroundColor: donutData.map(d => d.color),
+                    borderWidth: 3,
+                    borderColor: '#ffffff',
+                    hoverOffset: 10
+                }]
+            },
+            options: {
+                cutout: '78%',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function (ctx) {
+                                const val = ctx.raw;
+                                const percent = ((val / total) * 100).toFixed(1);
+                                return `${ctx.label}: ${val.toLocaleString('id-ID')} (${percent}%)`;
+                            }
+                        }
+                    }
+                },
+                animation: { animateRotate: true, duration: 900 }
+            }
+        });
+
+        // ================= DONUT LEGEND (custom, below chart) =================
+        const legendContainer = document.getElementById('donutLegend');
+
+        donutData.forEach((d, i) => {
+            const pct = ((d.value / total) * 100).toFixed(1);
+
+            const item = document.createElement('div');
+            item.className = 'legend-item';
+            item.innerHTML = `
+                <span class="legend-swatch" style="background:${d.color}"></span>
+                <div style="flex:1;min-width:0;">
+                    <div style="display:flex;align-items:center;gap:6px;">
+                        <span class="legend-label">${d.label}</span>
+                        <span class="legend-pct">${pct}%</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:4px;margin-top:2px;">
+                        <span class="legend-value">${d.value.toLocaleString('id-ID')}</span>
+                    </div>
+                    <div class="bar-track">
+                        <div class="bar-fill" style="width:${pct}%;background:${d.color};"></div>
+                    </div>
+                </div>
+            `;
+
+            // Hover: highlight segment
+            item.addEventListener('mouseenter', () => {
+                donutChart.data.datasets[0].backgroundColor = donutData.map((x, j) =>
+                    j === i ? x.color : x.color + '33'
+                );
+                donutChart.update();
+            });
+            item.addEventListener('mouseleave', () => {
+                donutChart.data.datasets[0].backgroundColor = donutData.map(x => x.color);
+                donutChart.update();
+            });
+
+            legendContainer.appendChild(item);
+        });
+
+        // ================= DONUT TABLE =================
+        document.getElementById('donutTable').innerHTML = donutData.map(d => {
+            const percent = ((d.value / total) * 100).toFixed(1);
+            return `
+                <tr>
+                    <td>${d.label}</td>
+                    <td>${d.value.toLocaleString('id-ID')}</td>
+                    <td>${percent}%</td>
+                </tr>
+            `;
+        }).join('');
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tren Jenis Loket Layanan Samsat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link rel="icon" href="img/logojateng.png" />
+    <link href="style.css" rel="stylesheet" />
+    <script src="script.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] },
+                    colors: {
+                        primary: { DEFAULT: '#1a3c8f', light: '#2450b5', dark: '#0f2660' },
+                        accent: { DEFAULT: '#22c55e', dark: '#16a34a' },
+                        surface: '#f0f4ff',
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-surface font-sans text-gray-800 flex h-screen overflow-hidden">
+
+    <!-- Sidebar Placeholder -->
+    <div id="sidebar-placeholder"></div>
+
+    <!-- Main content wrapper -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+
+        <!-- Topbar Placeholder -->
+        <div id="topbar-placeholder"></div>
+
+        <!-- PAGE CONTENT -->
+        <main class="flex-1 overflow-y-auto px-6 py-5 space-y-5">
+
+            <div class="fade-up bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+
+                <h2 class="font-extrabold text-xl text-gray-800 mb-4">
+                    Tren Jenis Loket Layanan Samsat
+                </h2>
+
+                <p class="text-gray-600 mb-6">
+                    Analisis tren penggunaan berbagai jenis loket layanan Samsat.
+                </p>
+
+                <!-- CHART -->
+                <div class="chart-wrap h-[420px]">
+                    <canvas id="loketChart"></canvas>
+                </div>
+
+                <!-- TABLE -->
+                <div class="mt-6 overflow-x-auto max-w-full">
+                    <table class="finance-table min-w-full w-full text-sm table-auto">
+                        <thead>
+                            <tr>
+                                <th>Bulan</th>
+                                <th class="text-center">INDUK</th>
+                                <th class="text-center">PEMBANTU</th>
+                                <th class="text-center">DIGITAL</th>
+                                <th class="text-center">SAMKEL</th>
+                                <th class="text-center">GERAI</th>
+                                <th class="text-center font-bold">TOTAL</th>
+                            </tr>
+                        </thead>
+                        <tbody id="loketTable"></tbody>
+                    </table>
+                </div>
+
+                <!-- KETERANGAN -->
+                <p class="text-sm text-gray-500 mt-6 leading-relaxed">
+                    <b>Keterangan:</b><br>
+                    Grafik menunjukkan jumlah transaksi berdasarkan jenis loket layanan Samsat per bulan.
+                    Loket <b>Induk</b> mendominasi volume transaksi, diikuti <b>Samkel</b> dan <b>Gerai</b>.
+                    Sementara <b>Pembantu</b> dan <b>Digital</b> masih relatif kecil.
+                    <br><br>
+                    Pola menunjukkan bahwa kanal layanan fisik utama masih menjadi tulang punggung,
+                    namun kanal digital memiliki potensi pertumbuhan ke depan.
+                </p>
+
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        loadLayouts('Tren Jenis Loket Layanan Samsat', '');
+
+        document.addEventListener("DOMContentLoaded", () => {
+
+            const labels = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+
+            const datasets = [
+                { label: "INDUK", data: [460000, 380000, 390000, 420000, null, null, null, null, null, null, null, null], color: "#ef4444" },
+                { label: "PEMBANTU", data: [65000, 52000, 58000, 60000, null, null, null, null, null, null, null, null], color: "#2dd4bf" },
+                { label: "DIGITAL", data: [15000, 12000, 14000, 16000, null, null, null, null, null, null, null, null], color: "#facc15" },
+                { label: "SAMKEL", data: [260000, 210000, 215000, 230000, null, null, null, null, null, null, null, null], color: "#60a5fa" },
+                { label: "GERAI", data: [180000, 155000, 165000, 160000, null, null, null, null, null, null, null, null], color: "#f9a8d4" }
+            ];
+
+            // ================= CHART =================
+            new Chart(document.getElementById("loketChart"), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: datasets.map(d => ({
+                        label: d.label,
+                        data: d.data,
+                        backgroundColor: d.color,
+                        borderRadius: 6
+                    }))
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        tooltip: {
+                            callbacks: {
+                                label: function (ctx) {
+                                    return `${ctx.dataset.label}: ${formatNumber(ctx.raw)} transaksi`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: val => formatNumber(val)
+                            },
+                            grid: { color: '#e5e7eb' }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+
+            // ================= TABLE =================
+            function renderTable() {
+
+                const html = labels.map((month, i) => {
+
+                    const rowValues = datasets.map(d => d.data[i] || 0);
+                    const total = rowValues.reduce((a, b) => a + b, 0);
+
+                    return `
+            <tr>
+                <td>${month}</td>
+                ${rowValues.map(v => `
+                    <td class="text-center">${formatNumber(v)}</td>
+                `).join('')}
+                <td class="text-center font-bold">${formatNumber(total)}</td>
+            </tr>
+            `;
+                }).join('');
+
+                document.getElementById("loketTable").innerHTML = html;
+            }
+
+            renderTable();
+
+            // ================= UTIL =================
+            function formatNumber(num) {
+                return new Intl.NumberFormat('id-ID').format(num || 0);
+            }
+
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Transaksi Samsat Provinsi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link rel="icon" href="img/logojateng.png" />
+    <link href="style.css" rel="stylesheet" />
+    <script src="script.js"></script>
+    <style>
+        /* Per-digit animation styles */
+        @keyframes slideUpDigit {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes rollDigit {
+            from {
+                transform: translateY(-30px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .digit {
+            display: inline-block;
+            min-width: 0.5ch;
+            transition: none;
+        }
+
+        .digit.initial-render {
+            animation: slideUpDigit 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            opacity: 0;
+        }
+
+        .digit.updating {
+            animation: rollDigit 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        .number-display {
+            display: inline;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 0.05em;
+        }
+
+        /* Card divider */
+        .card-divider {
+            border-top: 1px dashed #e5e7eb;
+            margin: 10px 0 8px;
+        }
+
+        /* Badge pill */
+        .badge-up {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .badge-down {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .badge-neutral {
+            background: #fef9c3;
+            color: #ca8a04;
+        }
+
+        .border-l-4 {
+            transition: border-color 0.3s ease;
+        }
+
+        .badge-up,
+        .badge-down,
+        .badge-neutral {
+            transition: all 0.3s ease;
+        }
+
+        /* Stat row inside card */
+        .stat-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        /* Finance table */
+        .table-scroll {
+            overflow-x: auto;
+        }
+
+        .finance-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        .finance-table thead tr {
+            background: #1a3c8f;
+            color: #fff;
+        }
+
+        .finance-table thead th {
+            padding: 10px 14px;
+            text-align: left;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .finance-table tbody tr {
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .finance-table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .finance-table tbody td {
+            padding: 10px 14px;
+            white-space: nowrap;
+        }
+
+        .finance-table tbody tr.total-row {
+            background: #eff6ff;
+            font-weight: 700;
+            border-top: 2px solid #bfdbfe;
+        }
+
+        .finance-table tbody tr.total-row td {
+            color: #1e40af;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] },
+                    colors: {
+                        primary: { DEFAULT: '#1a3c8f', light: '#2450b5', dark: '#0f2660' },
+                        accent: { DEFAULT: '#22c55e', dark: '#16a34a' },
+                        surface: '#f0f4ff',
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-surface font-sans text-gray-800 flex h-screen overflow-hidden">
+
+    <!-- Sidebar Placeholder -->
+    <div id="sidebar-placeholder"></div>
+
+    <!-- Main content wrapper -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+
+        <!-- Topbar Placeholder -->
+        <div id="topbar-placeholder"></div>
+
+        <!-- PAGE CONTENT -->
+        <main class="flex-1 overflow-y-auto px-6 py-5 space-y-5">
+
+            <!-- HEADER -->
+            <div class="fade-up bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <h2 class="font-extrabold text-xl text-gray-800 mb-2">
+                    Transaksi Samsat Provinsi Jawa Tengah Hari Ini
+                </h2>
+                <p class="text-gray-500 text-sm">
+                    Data transaksi PKB dan BBNKB berdasarkan jumlah roda kendaraan.
+                    Data bersumber langsung dari tabel transaksi real-time.
+                </p>
+            </div>
+
+            <!-- ===== LABEL HARI INI ===== -->
+            <div class="flex items-center gap-3 fade-up">
+                <span class="w-3 h-3 rounded-full bg-blue-600 inline-block"></span>
+                <span class="text-sm font-bold text-gray-700 uppercase tracking-wider">Hari Ini</span>
+                <span class="flex-1 border-t border-dashed border-gray-300"></span>
+                <span id="todayDate" class="text-xs text-gray-400"></span>
+            </div>
+
+            <!-- ===== CARDS HARI INI ===== -->
+            <div id="todayCards" class="grid grid-cols-1 md:grid-cols-3 gap-5 fade-up"></div>
+
+            <!-- ===== LABEL KEMARIN ===== -->
+            <div class="flex items-center gap-3 fade-up">
+                <span class="w-3 h-3 rounded-full bg-slate-400 inline-block"></span>
+                <span class="text-sm font-bold text-gray-700 uppercase tracking-wider">Kemarin</span>
+                <span class="flex-1 border-t border-dashed border-gray-300"></span>
+                <span id="yesterdayDate" class="text-xs text-gray-400"></span>
+            </div>
+
+            <!-- ===== CARDS KEMARIN ===== -->
+            <div id="yesterdayCards" class="grid grid-cols-1 md:grid-cols-3 gap-5 fade-up"></div>
+
+            <!-- ===== CHART ===== -->
+            <div class="fade-up bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <h3 class="text-lg font-extrabold text-gray-800 mb-1">
+                    Perbandingan Transaksi (Hari Ini vs Kemarin)
+                </h3>
+                <p class="text-xs text-gray-400 mb-4">Total gabungan PKB dan BBNKB</p>
+                <div class="w-full h-[350px] md:h-[420px]">
+                    <canvas id="transaksiChart"></canvas>
+                </div>
+            </div>
+
+            <!-- ===== TABEL REAL-TIME ===== -->
+            <div class="fade-up bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h3 class="text-lg font-extrabold text-gray-800">Transaksi Real-Time Hari Ini</h3>
+                        <p class="text-xs text-gray-400">
+                            Detail transaksi PKB dan BBNKB berdasarkan jenis kendaraan.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="table-scroll">
+                    <table class="finance-table" id="mainTable">
+                        <thead>
+                            <tr>
+                                <th>RODA</th>
+                                <th>OBYEK PKB</th>
+                                <th>NOMINAL PKB</th>
+                                <th>OBYEK BBNKB</th>
+                                <th>NOMINAL BBNKB</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <!--
+                                ════════════════════════════════════════════════
+                                SUMBER DATA UTAMA — Edit baris di sini.
+                                Card "Data Hari Ini" otomatis menyesuaikan.
+
+                                FORMAT KOLOM:
+                                  data-roda       = label (2 / 4 / dst)
+                                  data-obj-pkb    = jumlah obyek PKB (angka)
+                                  data-pkb        = nominal PKB (angka, tanpa Rp / titik)
+                                  data-obj-bbnkb  = jumlah obyek BBNKB (angka)
+                                  data-bbnkb      = nominal BBNKB (angka, tanpa Rp / titik)
+                                ════════════════════════════════════════════════
+                            -->
+                            <tr data-roda="2" data-obj-pkb="13470" data-pkb="7729944500" data-obj-bbnkb="182"
+                                data-bbnkb="20188000">
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr data-roda="4" data-obj-pkb="276" data-pkb="360619500" data-obj-bbnkb="0" data-bbnkb="0">
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr class="total-row" id="tableFooter">
+                                <td>TOTAL</td>
+                                <td id="foot-obj-pkb">0</td>
+                                <td id="foot-pkb">Rp 0</td>
+                                <td id="foot-obj-bbnkb">0</td>
+                                <td id="foot-bbnkb">Rp 0</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <p class="text-xs text-gray-400 mt-4">
+                    Updated at: <span id="lastUpdated">--:--:--</span>
+                </p>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        // ════════════════════════════════════════════════════════════════
+        // DIGIT-LEVEL ANIMATION SYSTEM
+        // ════════════════════════════════════════════════════════════════
+        const digitState = { values: {} };
+
+        function formatNumber(value) {
+            return value.toLocaleString('id-ID');
+        }
+        function getFormattedString(value) {
+            return 'Rp ' + formatNumber(value);
+        }
+        function getChangedPositions(oldStr, newStr) {
+            const changed = [];
+            const minLen = Math.min(oldStr.length, newStr.length);
+            for (let i = 0; i < minLen; i++) {
+                if (oldStr[i] !== newStr[i]) changed.push(i);
+            }
+            if (oldStr.length !== newStr.length) {
+                for (let i = minLen; i < Math.max(oldStr.length, newStr.length); i++) changed.push(i);
+            }
+            return changed;
+        }
+        function createDigitElements(formattedStr, isInitial = false) {
+            return [...formattedStr].map((char, i) => {
+                const span = document.createElement('span');
+                span.className = 'digit';
+                span.textContent = char;
+                span.dataset.position = i;
+                if (isInitial) {
+                    span.classList.add('initial-render');
+                    span.style.animationDelay = (i * 30) + 'ms';
+                }
+                return span;
+            });
+        }
+        function updateDigitsInPlace(container, oldStr, newStr, changedPositions) {
+            const existing = container.querySelectorAll('.digit');
+            if (newStr.length < oldStr.length) {
+                for (let i = newStr.length; i < existing.length; i++) existing[i].remove();
+            }
+            for (let i = 0; i < newStr.length; i++) {
+                const char = newStr[i];
+                const isChanged = changedPositions.includes(i);
+                if (i < existing.length) {
+                    const digit = existing[i];
+                    if (isChanged) {
+                        digit.textContent = char;
+                        digit.classList.remove('initial-render');
+                        digit.classList.add('updating');
+                        void digit.offsetWidth;
+                        digit.style.animationDelay = '0ms';
+                    }
+                } else {
+                    const span = document.createElement('span');
+                    span.className = 'digit updating';
+                    span.textContent = char;
+                    span.dataset.position = i;
+                    span.style.animationDelay = '0ms';
+                    container.appendChild(span);
+                }
+            }
+            setTimeout(() => {
+                container.querySelectorAll('.digit').forEach(d => d.classList.remove('initial-render', 'updating'));
+            }, 500);
+        }
+        function renderNumberDisplay(elementId, value, key) {
+            const container = document.getElementById(elementId);
+            if (!container) return;
+            const newStr = getFormattedString(value);
+            const oldStr = digitState.values[key] || '';
+            const isInitial = !digitState.values[key];
+            if (newStr === oldStr && !isInitial) return;
+            if (isInitial) {
+                container.innerHTML = '';
+                createDigitElements(newStr, true).forEach(d => container.appendChild(d));
+            } else {
+                const changed = getChangedPositions(oldStr, newStr);
+                if (changed.length > 0) updateDigitsInPlace(container, oldStr, newStr, changed);
+            }
+            digitState.values[key] = newStr;
+        }
+
+        // ════════════════════════════════════════════════════════════════
+        // READ DATA FROM TABLE — Sumber kebenaran adalah tabel HTML
+        // ════════════════════════════════════════════════════════════════
+
+        /**
+         * Baca semua baris tabel dan agregasi menjadi data hari ini.
+         * Ini adalah SATU-SATUNYA sumber data untuk card Hari Ini.
+         */
+        function readTableData() {
+            const rows = document.querySelectorAll('#tableBody tr[data-roda]');
+            let totalObjPkb = 0, totalPkb = 0, totalObjBbnkb = 0, totalBbnkb = 0;
+
+            rows.forEach(row => {
+                totalObjPkb += parseInt(row.dataset.objPkb || 0);
+                totalPkb += parseInt(row.dataset.pkb || 0);
+                totalObjBbnkb += parseInt(row.dataset.objBbnkb || 0);
+                totalBbnkb += parseInt(row.dataset.bbnkb || 0);
+            });
+
+            return {
+                objPkb: totalObjPkb,
+                pkb: totalPkb,
+                objBbnkb: totalObjBbnkb,
+                bbnkb: totalBbnkb,
+                total: totalPkb + totalBbnkb,
+                objTotal: totalObjPkb + totalObjBbnkb
+            };
+        }
+
+        /**
+         * Update footer tabel dengan total aggregasi
+         */
+        function updateTableFooter(d) {
+            const fmt = v => v.toLocaleString('id-ID');
+            const el = id => document.getElementById(id);
+            if (el('foot-obj-pkb')) el('foot-obj-pkb').textContent = fmt(d.objPkb);
+            if (el('foot-pkb')) el('foot-pkb').textContent = 'Rp ' + fmt(d.pkb);
+            if (el('foot-obj-bbnkb')) el('foot-obj-bbnkb').textContent = fmt(d.objBbnkb);
+            if (el('foot-bbnkb')) el('foot-bbnkb').textContent = 'Rp ' + fmt(d.bbnkb);
+        }
+
+        /**
+         * Isi <td> dari data-* attributes pada <tr>
+         * Sumber kebenaran adalah data-* attributes, display adalah <td>
+         */
+        function populateTableDisplay() {
+            const rows = document.querySelectorAll('#tableBody tr[data-roda]');
+            rows.forEach(row => {
+                const roda = row.dataset.roda;
+                const objPkb = parseInt(row.dataset.objPkb || 0);
+                const pkb = parseInt(row.dataset.pkb || 0);
+                const objBbnkb = parseInt(row.dataset.objBbnkb || 0);
+                const bbnkb = parseInt(row.dataset.bbnkb || 0);
+
+                const fmt = v => v.toLocaleString('id-ID');
+                const cells = row.querySelectorAll('td');
+
+                if (cells[0]) cells[0].textContent = roda;
+                if (cells[1]) cells[1].textContent = fmt(objPkb);
+                if (cells[2]) cells[2].textContent = 'Rp ' + fmt(pkb);
+                if (cells[3]) cells[3].textContent = fmt(objBbnkb);
+                if (cells[4]) cells[4].textContent = 'Rp ' + fmt(bbnkb);
+            });
+        }
+
+        // ════════════════════════════════════════════════════════════════
+        // DATA KEMARIN — Statis, tidak berubah selama sehari
+        // ════════════════════════════════════════════════════════════════
+
+        /**
+         * Data kemarin bersifat TETAP selama satu hari.
+         * Ganti manual atau ambil dari API saat halaman dimuat.
+         * 
+         * PENTING: total dan objTotal dihitung otomatis dari properti lainnya
+         * TODO: Ganti dengan fetch('/api/yesterday') jika tersedia.
+         */
+        const yesterdayData = {
+            objPkb: 14523,
+            pkb: 8077405000,
+            objBbnkb: 412,
+            bbnkb: 68855000,
+            get total() {
+                return this.pkb + this.bbnkb;
+            },
+            get objTotal() {
+                return this.objPkb + this.objBbnkb;
+            }
+        };
+
+        // ════════════════════════════════════════════════════════════════
+        // UTILITY
+        // ════════════════════════════════════════════════════════════════
+
+        function calcPercent(today, yesterday) {
+            if (yesterday === 0) return 0;
+            return ((today - yesterday) / yesterday) * 100;
+        }
+        function formatPercent(val) {
+            const sign = val >= 0 ? '+' : '';
+            return sign + val.toFixed(2).replace('.', ',') + '%';
+        }
+        function fmtRp(val) {
+            return 'Rp ' + val.toLocaleString('id-ID');
+        }
+        function fmtObj(val) {
+            return val.toLocaleString('id-ID') + ' obyek';
+        }
+        function updateTimestamp() {
+            const now = new Date();
+            const el = document.getElementById('lastUpdated');
+            if (el) el.textContent = now.toLocaleString('id-ID', {
+                year: 'numeric', month: '2-digit', day: '2-digit',
+                hour: '2-digit', minute: '2-digit', second: '2-digit'
+            });
+        }
+        function setDateLabels() {
+            const now = new Date();
+            const yest = new Date(now); yest.setDate(now.getDate() - 1);
+            const opt = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const el1 = document.getElementById('todayDate');
+            const el2 = document.getElementById('yesterdayDate');
+            if (el1) el1.textContent = now.toLocaleDateString('id-ID', opt);
+            if (el2) el2.textContent = yest.toLocaleDateString('id-ID', opt);
+        }
+
+        // ════════════════════════════════════════════════════════════════
+        // RENDER CARDS HARI INI — Bersumber dari tabel
+        // ════════════════════════════════════════════════════════════════
+
+        function getTrendStyle(percent) {
+            if (percent > 0) {
+                return {
+                    border: 'border-green-400',
+                    badge: 'badge-up',
+                    text: 'text-green-600'
+                };
+            }
+            if (percent > -10) {
+                return {
+                    border: 'border-yellow-400',
+                    badge: 'badge-neutral',
+                    text: 'text-yellow-600'
+                };
+            }
+            return {
+                border: 'border-red-400',
+                badge: 'badge-down',
+                text: 'text-red-600'
+            };
+        }
+
+        function renderTodayCards() {
+            const td = readTableData();        // data hari ini dari tabel
+            const yd = yesterdayData;          // data kemarin (statis)
+
+            updateTableFooter(td);              // sync footer tabel
+
+            const items = [
+                {
+                    id: 'today-total',
+                    label: 'Total Transaksi',
+                    color: 'text-gray-800',
+                    nomVal: td.total,
+                    objVal: td.objTotal,
+                    cmpNom: yd.total,
+                    cmpObj: yd.objTotal,
+                },
+                {
+                    id: 'today-pkb',
+                    label: 'PKB (Pajak Kendaraan Bermotor)',
+                    color: 'text-gray-600',
+                    nomVal: td.pkb,
+                    objVal: td.objPkb,
+                    cmpNom: yd.pkb,
+                    cmpObj: yd.objPkb,
+                },
+                {
+                    id: 'today-bbnkb',
+                    label: 'BBNKB (Bea Balik Nama)',
+                    color: 'text-gray-600',
+                    nomVal: td.bbnkb,
+                    objVal: td.objBbnkb,
+                    cmpNom: yd.bbnkb,
+                    cmpObj: yd.objBbnkb,
+                },
+            ];
+
+            const container = document.getElementById('todayCards');
+            const isFirstRender = !container.hasChildNodes();
+
+            if (isFirstRender) {
+                container.innerHTML = items.map(item => {
+                    const pctNom = calcPercent(item.nomVal, item.cmpNom);
+                    const pctObj = calcPercent(item.objVal, item.cmpObj);
+                    const trendNom = getTrendStyle(pctNom);
+                    const trendObj = getTrendStyle(pctObj);
+                    return `
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 border-l-4 ${trendNom.border}">
+                    <!-- Label -->
+                    <div class="flex items-center gap-2 mb-3">
+                        <p class="text-xs text-gray-500 font-semibold uppercase tracking-wide">${item.label}</p>
+                    </div>
+
+                    <!-- Nominal -->
+                    <h3 id="num-nom-${item.id}" class="text-xl font-extrabold ${item.color} number-display mb-1"></h3>
+
+                    <!-- Selisih Nominal -->
+                    <div class="flex items-center gap-2 mb-3 pt-2">
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${trendNom.badge}">
+                            ${pctNom >= 0 ? '↑' : '↓'} <span id="pct-nom-${item.id}">${formatPercent(pctNom)}</span>
+                        </span>
+                        <span class="text-xs text-gray-400">perbandingan kemarin</span>
+                    </div>
+
+                    <!-- Divider -->
+                    <div class="card-divider"></div>
+
+                    <!-- Obyek -->
+                    <div class="stat-row">
+                        <div>
+                            <p class="text-xs text-gray-400 mb-0.5">Jumlah Obyek</p>
+                            <p id="num-obj-${item.id}" class="text-sm font-bold text-gray-700">
+                                ${item.objVal.toLocaleString('id-ID')}
+                            </p>
+                        </div>
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${trendObj.badge}">
+                            ${pctObj >= 0 ? '↑' : '↓'} <span id="pct-obj-${item.id}">${formatPercent(pctObj)}</span>
+                        </span>
+                    </div>
+                </div>`;
+                }).join('');
+            } else {
+                // Update tanpa rebuild DOM
+                items.forEach(item => {
+                    const pctNom = calcPercent(item.nomVal, item.cmpNom);
+                    const pctObj = calcPercent(item.objVal, item.cmpObj);
+
+                    const trendNom = getTrendStyle(pctNom);
+                    const trendObj = getTrendStyle(pctObj);
+
+                    const elNom = document.getElementById(`num-nom-${item.id}`);
+                    const card = elNom?.closest('.border-l-4');
+
+                    const elPctNom = document.getElementById(`pct-nom-${item.id}`);
+                    const elPctObj = document.getElementById(`pct-obj-${item.id}`);
+
+                    // ✅ BORDER CARD
+                    if (card) {
+                        card.classList.remove('border-green-400', 'border-yellow-400', 'border-red-400');
+                        card.classList.add(trendNom.border);
+                    }
+
+                    // ✅ BADGE NOMINAL — Fix: gunakan parentElement untuk outer span
+                    if (elPctNom) {
+                        const badgeSpan = elPctNom.parentElement;  // outer span dengan badge class
+                        const indicator = pctNom >= 0 ? '↑' : '↓';
+
+                        if (badgeSpan) {
+                            // Update indicator + percentage text
+                            badgeSpan.innerHTML = `${indicator} <span id="pct-nom-${item.id}">${formatPercent(pctNom)}</span>`;
+
+                            // Update badge color class
+                            badgeSpan.classList.remove('badge-up', 'badge-down', 'badge-neutral');
+                            badgeSpan.classList.add(trendNom.badge);
+                        }
+                    }
+
+                    // ✅ BADGE OBYEK — Fix: gunakan parentElement untuk outer span
+                    if (elPctObj) {
+                        const badgeSpan = elPctObj.parentElement;  // outer span dengan badge class
+                        const indicator = pctObj >= 0 ? '↑' : '↓';
+
+                        if (badgeSpan) {
+                            // Update indicator + percentage text
+                            badgeSpan.innerHTML = `${indicator} <span id="pct-obj-${item.id}">${formatPercent(pctObj)}</span>`;
+
+                            // Update badge color class
+                            badgeSpan.classList.remove('badge-up', 'badge-down', 'badge-neutral');
+                            badgeSpan.classList.add(trendObj.badge);
+                        }
+                    }
+
+                    // ✅ UPDATE JUMLAH OBYEK
+                    const elObj = document.getElementById(`num-obj-${item.id}`);
+                    if (elObj) {
+                        elObj.textContent = item.objVal.toLocaleString('id-ID');
+                    }
+                });
+            }
+
+            // Render angka dengan digit animation
+            requestAnimationFrame(() => {
+                items.forEach(item => {
+                    renderNumberDisplay(`num-nom-${item.id}`, item.nomVal, `today-nom-${item.id}`);
+                });
+            });
+        }
+
+        // ════════════════════════════════════════════════════════════════
+        // RENDER CARDS KEMARIN — Statis, hanya di-render sekali
+        // ════════════════════════════════════════════════════════════════
+
+        function renderYesterdayCards() {
+            const yd = yesterdayData;
+            const container = document.getElementById('yesterdayCards');
+
+            const items = [
+                {
+                    id: 'yest-total',
+                    label: 'Total Transaksi',
+                    color: 'text-gray-600',
+                    nomVal: yd.total,
+                    objVal: yd.objTotal,
+                },
+                {
+                    id: 'yest-pkb',
+                    label: 'PKB (Pajak Kendaraan Bermotor)',
+                    color: 'text-gray-600',
+                    nomVal: yd.pkb,
+                    objVal: yd.objPkb,
+                },
+                {
+                    id: 'yest-bbnkb',
+                    label: 'BBNKB (Bea Balik Nama)',
+                    color: 'text-gray-600',
+                    nomVal: yd.bbnkb,
+                    objVal: yd.objBbnkb,
+                },
+            ];
+
+            container.innerHTML = items.map(item => `
+            <div class="bg-white/70 rounded-2xl p-5 shadow-sm border border-gray-100 border-l-4 border-l-gray-300">
+                <!-- Label -->
+                <div class="flex items-center gap-2 mb-3">
+                    <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide">${item.label}</p>
+                </div>
+
+                <!-- Nominal -->
+                <h3 id="num-nom-${item.id}" class="text-xl font-bold ${item.color} number-display mb-3"></h3>
+
+                <!-- Divider -->
+                <div class="card-divider"></div>
+
+                <!-- Obyek -->
+                <div>
+                    <p class="text-xs text-gray-400 mb-0.5">Jumlah Obyek</p>
+                    <p class="text-sm font-bold text-gray-500">${item.objVal.toLocaleString('id-ID')}</p>
+                </div>
+            </div>
+        `).join('');
+
+            // Render angka dengan digit animation (hanya sekali)
+            requestAnimationFrame(() => {
+                items.forEach(item => {
+                    renderNumberDisplay(`num-nom-${item.id}`, item.nomVal, `yest-nom-${item.id}`);
+                });
+            });
+        }
+
+        // ════════════════════════════════════════════════════════════════
+        // CHART
+        // ════════════════════════════════════════════════════════════════
+
+        let transaksiChartInstance = null;
+
+        function renderTransaksiChart() {
+            const canvas = document.getElementById('transaksiChart');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            if (transaksiChartInstance) transaksiChartInstance.destroy();
+
+            const td = readTableData();       // Data hari ini dari tabel
+            const yd = yesterdayData;         // Data kemarin — SAMA DENGAN CARD KEMARIN
+
+            // ✅ TOTAL GABUNGAN PKB + BBNKB
+            const todayTotal = td.pkb + td.bbnkb;
+            const yesterdayTotal = yd.pkb + yd.bbnkb;  // Dari yesterdayData (card kemarin)
+
+            transaksiChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Hari Ini', 'Kemarin'],
+                    datasets: [
+                        {
+                            label: 'Total Transaksi',
+                            data: [todayTotal, yesterdayTotal],
+                            backgroundColor: ['#1a3c8f', '#93c5fd'],
+                            borderRadius: 12,
+                            barThickness: 80,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: '#111827',
+                            padding: 12,
+                            callbacks: {
+                                label: ctx => 'Rp ' + ctx.raw.toLocaleString('id-ID')
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: val => {
+                                    if (val >= 1_000_000_000) return 'Rp ' + (val / 1_000_000_000).toFixed(1) + ' M';
+                                    return 'Rp ' + (val / 1_000_000).toFixed(0) + ' Jt';
+                                }
+                            },
+                            grid: { color: '#e5e7eb' }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    },
+                    animation: {
+                        duration: 700,
+                        easing: 'easeOutCubic'
+                    }
+                }
+            });
+        }
+
+        // ════════════════════════════════════════════════════════════════
+        // MUTATION OBSERVER — Deteksi perubahan tabel otomatis
+        // Jika data di tabel diubah programatik / via API, card langsung
+        // ikut ter-update tanpa perlu memanggil fungsi update manual.
+        // ════════════════════════════════════════════════════════════════
+
+        function observeTable() {
+            const tableBody = document.getElementById('tableBody');
+            if (!tableBody) return;
+
+            const observer = new MutationObserver(() => {
+                updateTimestamp();
+                renderTodayCards();
+                renderTransaksiChart();
+            });
+
+            observer.observe(tableBody, {
+                childList: true,
+                subtree: true,
+                characterData: true,
+                attributes: true,
+                attributeFilter: ['data-obj-pkb', 'data-pkb', 'data-obj-bbnkb', 'data-bbnkb']
+            });
+        }
+
+        // ════════════════════════════════════════════════════════════════
+        // CONTOH: Cara update data dari API / backend
+        // ════════════════════════════════════════════════════════════════
+
+        /**
+         * Panggil fungsi ini untuk update satu baris tabel.
+         * Card Hari Ini akan otomatis ikut berubah via MutationObserver.
+         *
+         * @param {string} roda    - nilai atribut data-roda (misal "2" atau "4")
+         * @param {object} newData - { objPkb, pkb, objBbnkb, bbnkb }
+         *
+         * Contoh penggunaan:
+         *   updateTableRow("2", { objPkb: 1800, pkb: 250000000, objBbnkb: 5, bbnkb: 8000000 });
+         */
+        function updateTableRow(roda, newData) {
+            const row = document.querySelector(`#tableBody tr[data-roda="${roda}"]`);
+            if (!row) return;
+
+            row.dataset.objPkb = newData.objPkb;
+            row.dataset.pkb = newData.pkb;
+            row.dataset.objBbnkb = newData.objBbnkb;
+            row.dataset.bbnkb = newData.bbnkb;
+
+            // Update display dari data attributes
+            populateTableDisplay();
+        }
+
+        // ════════════════════════════════════════════════════════════════
+        // INIT
+        // ════════════════════════════════════════════════════════════════
+
+        // Isi label tanggal
+        setDateLabels();
+
+        // Layout (dari script.js project Anda)
+        if (typeof loadLayouts === 'function') {
+            loadLayouts('Transaksi Samsat Provinsi', 'Jawa Tengah Hari Ini').then(() => {
+                const filterContainer = document.querySelector('#topbar .grid');
+                if (filterContainer) filterContainer.remove();
+            });
+        }
+
+        // Populate display dari data attributes
+        populateTableDisplay();
+
+        // Initial render
+        updateTimestamp();
+        renderTodayCards();
+        renderYesterdayCards();
+        renderTransaksiChart();
+
+        // Pasang observer setelah DOM siap
+        observeTable();
+
+        // ════════════════════════════════════════════════════════════════
+        // SIMULASI UPDATE PERIODIK (HAPUS jika sudah pakai API / push)
+        // Interval ini mensimulasikan perubahan data dari tabel.
+        // Di production, ganti dengan panggilan API Anda sendiri,
+        // lalu gunakan updateTableRow() untuk mengubah data tabel.
+        // ════════════════════════════════════════════════════════════════
+        setInterval(() => {
+            // Simulasi penambahan data pada roda 2
+            const row2 = document.querySelector('#tableBody tr[data-roda="2"]');
+            if (row2) {
+                const curPkb = parseInt(row2.dataset.pkb) + Math.floor(Math.random() * 200000000);
+                const curObjPkb = parseInt(row2.dataset.objPkb) + Math.floor(Math.random() * 830);
+                const curBbnkb = parseInt(row2.dataset.bbnkb) + Math.floor(Math.random() * 11500000);
+                const curObjBbn = parseInt(row2.dataset.objBbnkb) + (Math.random() > 0.7 ? 1 : 0);
+                updateTableRow("2", {
+                    objPkb: curObjPkb, pkb: curPkb,
+                    objBbnkb: curObjBbn, bbnkb: curBbnkb
+                });
+            }
+            updateTimestamp();
+        }, 4000);
+
+    </script>
+</body>
+
+</html>

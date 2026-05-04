@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard PKB</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link rel="icon" href="img/logojateng.png" />
+    <link href="style.css" rel="stylesheet" />
+    <script src="script.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] },
+                    colors: {
+                        primary: { DEFAULT: '#1a3c8f', light: '#2450b5', dark: '#0f2660' },
+                        accent: { DEFAULT: '#22c55e', dark: '#16a34a' },
+                        surface: '#f0f4ff',
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-surface font-sans text-gray-800 flex h-screen overflow-hidden">
+
+    <div id="sidebar-placeholder"></div>
+    <!-- END TEMPLATE: SIDEBAR -->
+
+
+    <!-- Main content wrapper -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+
+        <div id="topbar-placeholder"></div>
+        <!-- END TEMPLATE: TOPBAR -->
+
+
+        <!-- ── PAGE CONTENT ── -->
+        <main class="flex-1 overflow-y-auto px-6 py-5 space-y-5">
+
+            <!-- ① Hero card: PAD summary -->
+            <!-- HERO: DENSE KPI CONTROL PANEL -->
+            <section
+                class="fade-up fade-up-1 bg-primary rounded-3xl min-h-[500px] text-white shadow-xl p-4 md:p-7 flex flex-col">
+
+                <!-- HEADER -->
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-4 md:mb-5 gap-3">
+                    <div class="flex-1">
+                        <h2 class="text-xs tracking-[0.25em] uppercase opacity-70 font-semibold">
+                            Bea Balik Nama Kendaraan Bermotor (BBNKB)
+                        </h2>
+                        <p class="text-xs opacity-70">
+                            Monitoring Pendapatan Daerah
+                        </p>
+                    </div>
+
+                    <div class="text-left sm:text-right flex items-start gap-3">
+                        <div>
+                            <p class="text-[11px] opacity-70">Periode</p>
+                            <p id="periodeText" class="font-semibold text-sm">s.d April 2026</p>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- MAIN GRID -->
+                <div class="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-5">
+
+                    <!-- LEFT: MAIN KPI -->
+                    <div class="lg:col-span-2 flex flex-col">
+
+                        <!-- ANGKA UTAMA -->
+                        <div class="mb-4 md:mb-6">
+                            <p class="text-xs uppercase tracking-wider text-white/70 mb-2">
+                                Realisasi BBNKB
+                            </p>
+
+                            <h1 class="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold leading-tight">
+                                Rp 2.702.915.389.844
+                            </h1>
+                        </div>
+
+                        <!-- QUICK INFO (INI YANG BIKIN MUDAH DIBACA) -->
+                        <div class="flex flex-wrap gap-3 md:gap-4 mb-4 md:mb-6 text-sm">
+
+                            <div class="bg-white/10 px-3 py-1.5 rounded-lg">
+                                Target: <span class="font-semibold">Rp 12.450.797.725.000</span>
+                            </div>
+
+                            <div class="bg-white/10 px-3 py-1.5 rounded-lg">
+                                Sisa: <span class="font-semibold">Rp 9.767.605.048.029</span>
+                            </div>
+
+                        </div>
+
+                        <!-- PROGRESS -->
+                        <div class="mb-4 md:mb-6">
+                            <div class="flex justify-between text-xs text-white/80 mb-2">
+                                <span>Progress Target</span>
+                                <span class="font-bold text-white">21,55%</span>
+                            </div>
+
+                            <div class="w-full bg-primary-dark h-3 rounded-full overflow-hidden">
+                                <div class="bg-accent h-3 rounded-full transition-all duration-300"
+                                    style="width:21.55%"></div>
+                            </div>
+                        </div>
+
+                        <!-- KPI STRIP -->
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 text-center">
+
+                            <div class="bg-white/10 rounded-lg p-2 md:p-3">
+                                <p class="text-[10px] text-white/70">Hari Kerja terlewati</p>
+                                <p class="font-bold text-base md:text-lg">80</p>
+                            </div>
+
+                            <div class="bg-white/10 rounded-lg p-2 md:p-3">
+                                <p class="text-[10px] text-white/70">Sisa Hari Kerja</p>
+                                <p class="font-bold text-base md:text-lg">160</p>
+                            </div>
+
+                            <!-- KPI rata-rata: ganti teks statis dengan id -->
+                            <div class="bg-white/10 rounded-lg p-2 md:p-3">
+                                <p class="text-[10px] text-white/70">Rata-rata per hari</p>
+                                <p id="rataRataValue" class="font-bold text-sm">Rp 0</p>
+                            </div>
+
+                            <div class="bg-white/10 rounded-lg p-2 md:p-3">
+                                <p class="text-[10px] text-white/70">Potensi</p>
+                                <p id="potensiValue" class="font-bold text-sm">Rp 0</p>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- RIGHT: DATA RINGKAS PADAT -->
+                    <!-- RIGHT: DATA RINGKAS PADAT -->
+                    <div class="flex flex-col gap-3 md:gap-4">
+
+                        <!-- TARGET BOX -->
+                        <div class="bg-white/10 backdrop-blur rounded-xl p-3 md:p-4 border border-white/10">
+
+                            <p class="text-xs text-white/70 mb-2">Target 2026</p>
+                            <p class="font-extrabold text-base md:text-lg">Rp 12.450.797.725.000</p>
+
+                            <div class="mt-3 space-y-1 text-xs">
+                                <div class="flex justify-between">
+                                    <span class="text-white/70">Realisasi</span>
+                                    <span>21,55%</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-white/70">Sisa</span>
+                                    <span>78,45%</span>
+                                </div>
+                            </div>
+
+                            <div class="mt-3 border-t border-white/10 pt-2">
+                                <p class="text-[11px] text-white/70">Selisih</p>
+                                <p class="font-semibold text-sm">Rp 9.767.605.048.029</p>
+                            </div>
+
+                        </div>
+
+                        <!-- PROYEKSI + PROGRESS HARIAN -->
+                        <div id="dailyCard" class="bg-accent rounded-xl p-3 md:p-4 text-white flex flex-col gap-3">
+
+                            <!-- PROGRESS HARIAN -->
+                            <div>
+                                <p class="text-[11px] text-white/80 mb-2">Progres Hari Ini</p>
+
+                                <div class="flex justify-between text-xs mb-2">
+                                    <span id="dailyReal">Rp 0</span>
+                                    <span id="dailyTarget">Rp 0</span>
+                                </div>
+
+                                <div class="w-full bg-white/20 h-2 rounded-full overflow-hidden">
+                                    <div id="dailyBar" class="bg-white h-2 rounded-full transition-all duration-700">
+                                    </div>
+                                </div>
+
+                                <p class="text-[10px] text-white/70 mt-2">
+                                    <span id="dailyPercent">0%</span> dari target harian
+                                </p>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            </section>
+        </main>
+        <!-- END PAGE CONTENT -->
+
+    </div><!-- end main content wrapper -->
+
+    <script>
+        const BULAN_LABEL = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+            'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+
+        loadLayouts('Dashboard BBNKB', 'Ringkasan realisasi BBNKB')
+            .then(() => {
+                renderPeriode();
+            });
+
+        const dashboardData = {
+            realisasi: 2702915389844,
+            target: 12450797725000,
+            hariKerja: 76,
+            totalHariKerja: 275,
+            realisasiHariIni: 21200000000
+        };
+
+        function formatRupiah(val) {
+            return 'Rp ' + val.toLocaleString('id-ID');
+        }
+
+        function getRataRataPerHari() {
+            return dashboardData.realisasi / dashboardData.hariKerja;
+        }
+
+        function getSisaHariKerja() {
+            return dashboardData.totalHariKerja - dashboardData.hariKerja;
+        }
+
+        function getPotensi() {
+            const rataRata = getRataRataPerHari();
+            const sisaHari = getSisaHariKerja();
+            return (sisaHari * rataRata) + dashboardData.realisasi;
+        }
+
+        function renderPotensi() {
+            const el = document.getElementById('potensiValue');
+            if (!el) return;
+            el.textContent = 'Rp ' + (getPotensi() / 1_000_000_000_000).toFixed(2) + ' T';
+        }
+
+        function renderRataRata() {
+            const el = document.getElementById('rataRataValue');
+            if (!el) return;
+            el.textContent = 'Rp ' + (getRataRataPerHari() / 1_000_000_000).toFixed(1) + ' M';
+        }
+
+        // ── Warna card progres: ≤50% merah | 51–79% kuning | ≥80% hijau
+        function getProgressColor(percent) {
+            if (percent <= 50) return { bg: 'bg-red-500', bar: 'bg-white' };
+            if (percent < 80) return { bg: 'bg-yellow-400', bar: 'bg-white' };
+            return { bg: 'bg-accent', bar: 'bg-white' };
+        }
+
+        function renderDailyProgress() {
+            const dailyTarget = dashboardData.target / dashboardData.totalHariKerja;
+            const real = dashboardData.realisasiHariIni;
+
+            // 🔥 percent asli (boleh lebih dari 100)
+            const percentRaw = (real / dailyTarget) * 100;
+
+            // 🔥 percent untuk tampilan bar (max 100)
+            const percentBar = Math.min(percentRaw, 100);
+
+            document.getElementById('dailyReal').textContent = formatRupiah(real);
+            document.getElementById('dailyTarget').textContent = formatRupiah(Math.round(dailyTarget));
+
+            // tampilkan persen asli
+            document.getElementById('dailyPercent').textContent = percentRaw.toFixed(1) + '%';
+
+            // bar hanya sampai 100%
+            document.getElementById('dailyBar').style.width = percentBar + '%';
+
+            // warna tetap pakai percent asli
+            const card = document.getElementById('dailyCard');
+            if (card) {
+                const { bg } = getProgressColor(percentRaw);
+                card.className = card.className.replace(/bg-\S+/, bg);
+            }
+        }
+
+        // ── Periode: baca dari URL params, fallback ke bulan/tahun terbaru (April 2026)
+        function renderPeriode() {
+            const params = new URLSearchParams(window.location.search);
+            const bulan = parseInt(params.get('bulan')) || 4;   // default April
+            const tahun = params.get('tahun') || '2026';        // default 2026
+
+            const el = document.getElementById('periodeText');
+            if (el) el.textContent = `s.d ${BULAN_LABEL[bulan]} ${tahun}`;
+
+            // Sinkronkan filter select jika sudah ada di DOM
+            const selBulan = document.getElementById('filterBulan');
+            const selTahun = document.getElementById('filterTahun');
+            if (selBulan) selBulan.value = bulan;
+            if (selTahun) selTahun.value = tahun;
+        }
+
+        function renderAll() {
+            renderDailyProgress();
+            renderPotensi();
+            renderRataRata();
+        }
+
+        document.addEventListener('DOMContentLoaded', renderAll);
+
+        setInterval(() => {
+            const tambahan = Math.floor(Math.random() * 9_000_000_000);
+            dashboardData.realisasiHariIni += tambahan;
+            dashboardData.realisasi += tambahan;
+
+            renderDailyProgress();
+            renderPotensi();
+            renderRataRata();
+        }, 3000);
+    </script>
+</body>
+
+</html>
