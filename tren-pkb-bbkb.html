@@ -120,8 +120,7 @@
         document.addEventListener("DOMContentLoaded", () => {
 
             loadLayouts('Tren Target dan Realisasi', 'PKB dan BBNKB').then(() => {
-                const filterContainer = document.querySelector('#topbar .grid');
-                if (filterContainer) filterContainer.remove();
+                const filterContainer = document.querySelector('#topbar .filter-row');
             });
 
             // =========================

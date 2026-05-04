@@ -867,7 +867,7 @@
         // Layout (dari script.js project Anda)
         if (typeof loadLayouts === 'function') {
             loadLayouts('Transaksi Samsat Provinsi', 'Jawa Tengah Hari Ini').then(() => {
-                const filterContainer = document.querySelector('#topbar .grid');
+                const filterContainer = document.querySelector('#topbar .filter-row');
                 if (filterContainer) filterContainer.remove();
             });
         }
