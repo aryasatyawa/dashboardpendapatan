@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dashboard Pendapatan</title>
+    <title>Dashboard Ringkasan</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
@@ -107,33 +107,32 @@
                             </div>
 
                             <div class="w-full bg-primary-dark h-3 rounded-full overflow-hidden">
-                                <div class="bg-accent h-3 rounded-full transition-all duration-300"
+                                <div class="bg-green-500 h-3 rounded-full transition-all duration-300"
                                     style="width:21.55%"></div>
                             </div>
                         </div>
 
-                        <!-- KPI STRIP -->
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 text-center">
+                        <!-- KPI STRIP — 2 kolom × 2 baris, tinggi penuh -->
+                        <div class="grid grid-cols-2 gap-2 md:gap-3 text-center flex-1">
 
-                            <div class="bg-white/10 rounded-lg p-2 md:p-3">
-                                <p class="text-[10px] text-white/70">Hari Kerja terlewati</p>
+                            <div class="bg-white/10 rounded-lg p-2 md:p-3 flex flex-col justify-center">
+                                <p class="text-[10px] text-white/70">Hari Kerja Terlewati</p>
                                 <p class="font-bold text-base md:text-lg">80</p>
                             </div>
 
-                            <div class="bg-white/10 rounded-lg p-2 md:p-3">
+                            <div class="bg-white/10 rounded-lg p-2 md:p-3 flex flex-col justify-center">
                                 <p class="text-[10px] text-white/70">Sisa Hari Kerja</p>
                                 <p class="font-bold text-base md:text-lg">160</p>
                             </div>
 
-                            <!-- KPI rata-rata: ganti teks statis dengan id -->
-                            <div class="bg-white/10 rounded-lg p-2 md:p-3">
-                                <p class="text-[10px] text-white/70">Rata-rata per hari</p>
-                                <p id="rataRataValue" class="font-bold text-sm">Rp 0</p>
+                            <div class="bg-white/10 rounded-lg p-2 md:p-3 flex flex-col justify-center">
+                                <p class="text-[10px] text-white/70">Rata-rata per Hari</p>
+                                <p id="rataRataValue" class="font-bold text-sm">Rp 35,6 M</p>
                             </div>
 
-                            <div class="bg-white/10 rounded-lg p-2 md:p-3">
+                            <div class="bg-white/10 rounded-lg p-2 md:p-3 flex flex-col justify-center">
                                 <p class="text-[10px] text-white/70">Potensi</p>
-                                <p id="potensiValue" class="font-bold text-sm">Rp 0</p>
+                                <p id="potensiValue" class="font-bold text-sm">Rp 9,78 T</p>
                             </div>
 
                         </div>
@@ -192,7 +191,7 @@
                         </div>
 
                         <!-- PROYEKSI + PROGRESS HARIAN -->
-                        <div id="dailyCard" class="bg-accent rounded-xl p-3 md:p-4 text-white flex flex-col gap-3">
+                        <div id="dailyCard" class="bg-green-500 rounded-xl p-3 md:p-4 text-white flex flex-col gap-3">
 
                             <!-- PROGRESS HARIAN -->
                             <div>
@@ -275,7 +274,7 @@
         function getProgressColor(percent) {
             if (percent <= 50) return { bg: 'bg-red-500', bar: 'bg-white' };
             if (percent < 80) return { bg: 'bg-yellow-400', bar: 'bg-white' };
-            return { bg: 'bg-accent', bar: 'bg-white' };
+            return { bg: 'bg-green-500', bar: 'bg-white' };
         }
 
         function renderDailyProgress() {

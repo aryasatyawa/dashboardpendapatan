@@ -75,10 +75,7 @@ function initSidebarInteractions() {
         item.dataset.bound = "true";
 
         item.addEventListener('click', function () {
-            document.querySelectorAll('.nav-item')
-                .forEach(n => n.classList.remove('active'));
-
-            this.classList.add('active');
+            updateActiveStyling(this);
         });
 
     });
@@ -88,13 +85,22 @@ function initSidebarInteractions() {
     initTopbarFilters();
 }
 
+function updateActiveStyling(activeItem) {
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active', 'bg-blue-50', 'text-blue-600', 'hover:bg-blue-400');
+        item.classList.add('text-gray-600', 'hover:bg-gray-50');
+    });
+    activeItem.classList.add('active', 'bg-blue-50', 'text-blue-600', 'hover:bg-blue-400');
+    activeItem.classList.remove('hover:bg-gray-50');
+}
+
 function setActiveSidebar() {
     const currentPath = window.location.pathname.split('/').pop(); // Get the current page filename
     const navItems = document.querySelectorAll('.nav-item');
     navItems.forEach(item => {
-        item.classList.remove('active');
         if (item.getAttribute('href') === currentPath) {
-            item.classList.add('active');
+            updateActiveStyling(item);
+            return;
         }
     });
 }
@@ -104,8 +110,9 @@ function initTopbarFilters() {
     const uppd = document.getElementById('filterUppd');
     const tahun = document.getElementById('filterTahun');
     const bulan = document.getElementById('filterBulan');
+    const jenis = document.getElementById('filterJenis');
 
-    if (!uppd || !tahun || !bulan) return;
+    if (!uppd || !tahun || !bulan || !jenis) return;
 
 
     function applyFilter() {
@@ -115,12 +122,13 @@ function initTopbarFilters() {
         params.set('uppd', uppd.value);
         params.set('tahun', tahun.value);
         params.set('bulan', bulan.value);
+        params.set('jenis', jenis.value);
 
         window.location.search = params.toString();
     }
 
 
-    [uppd, tahun, bulan].forEach(el => {
+    [uppd, tahun, bulan, jenis].forEach(el => {
 
         if (el.dataset.bound) return;
 
@@ -158,7 +166,7 @@ const sidebarTemplate = `<aside id="sidebar" class="w-64 flex-shrink-0 bg-white 
     <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-1">
 
     <a href="index.html"
-        class="nav-item flex items-start gap-3 rounded-xl px-3 py-2.5 cursor-pointer transition-colors bg-blue-50 text-blue-600">
+        class="nav-item flex items-start gap-3 rounded-xl px-3 py-2.5 cursor-pointer transition-colors text-gray-600 hover:bg-gray-50">
         <svg class="w-5 h-5 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <rect x="3" y="3" width="7" height="7" rx="1" />
             <rect x="14" y="3" width="7" height="7" rx="1" />
@@ -332,6 +340,12 @@ class="flex-shrink-0 border border-gray-200 rounded-lg px-3 py-2 text-sm font-me
 <option value="10">Oktober</option>
 <option value="11">November</option>
 <option value="12">Desember</option>
+</select>
+
+<select id="filterJenis"
+class="flex-shrink-0 border border-gray-200 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 bg-white min-w-[120px]">
+<option value="perubahan">Perubahan</option>
+<option value="target_murni">Target Murni</option>
 </select>
 
 </div>

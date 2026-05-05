@@ -42,15 +42,17 @@
         <!-- PAGE CONTENT -->
         <main class="flex-1 overflow-y-auto px-6 py-5 space-y-5">
 
+            <!-- HEADER -->
             <div class="fade-up bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-
-                <h2 class="font-extrabold text-xl text-gray-800 mb-4">
+                <h2 class="font-extrabold text-xl text-gray-800 mb-2">
                     Tren Jenis Loket Layanan Samsat
                 </h2>
-
-                <p class="text-gray-600 mb-6">
+                <p class="text-gray-500 text-sm">
                     Analisis tren penggunaan berbagai jenis loket layanan Samsat.
                 </p>
+            </div>
+
+            <div class="fade-up bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
 
                 <!-- CHART -->
                 <div class="chart-wrap h-[420px]">
@@ -75,24 +77,16 @@
                     </table>
                 </div>
 
-                <!-- KETERANGAN -->
-                <p class="text-sm text-gray-500 mt-6 leading-relaxed">
-                    <b>Keterangan:</b><br>
-                    Grafik menunjukkan jumlah transaksi berdasarkan jenis loket layanan Samsat per bulan.
-                    Loket <b>Induk</b> mendominasi volume transaksi, diikuti <b>Samkel</b> dan <b>Gerai</b>.
-                    Sementara <b>Pembantu</b> dan <b>Digital</b> masih relatif kecil.
-                    <br><br>
-                    Pola menunjukkan bahwa kanal layanan fisik utama masih menjadi tulang punggung,
-                    namun kanal digital memiliki potensi pertumbuhan ke depan.
-                </p>
-
             </div>
 
         </main>
     </div>
 
     <script>
-        loadLayouts('Tren Jenis Loket Layanan Samsat', '');
+        loadLayouts('Tren Jenis Loket Layanan Samsat', 'Jawa Tengah Hari Ini').then(() => {
+            const filterContainer = document.querySelector('#topbar .filter-row');
+            if (filterContainer) filterContainer.remove();
+        });
 
         document.addEventListener("DOMContentLoaded", () => {
 
