@@ -42,6 +42,7 @@
             display: inline-block;
             min-width: 0.5ch;
             transition: none;
+
         }
 
         .digit.initial-render {
@@ -144,6 +145,58 @@
         .finance-table tbody tr.total-row td {
             color: #1e40af;
         }
+
+        /* ─── Wheel group separator ─── */
+        .wheel-separator {
+            grid-column: 1 / -1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .wheel-separator-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px 6px 10px;
+            border-radius: 12px;
+            white-space: nowrap;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            flex-shrink: 0;
+        }
+
+        .wheel-separator-pill.r2 {
+            background: #eff6ff;
+            color: #1d4ed8;
+            border: 1px solid #bfdbfe;
+        }
+
+        .wheel-separator-pill.r4 {
+            background: #faf5ff;
+            color: #7e22ce;
+            border: 1px solid #e9d5ff;
+        }
+
+        .wheel-separator-line {
+            flex: 1;
+            border: none;
+            border-top: 1.5px dashed;
+        }
+
+        .wheel-separator-line.r2 {
+            border-color: #bfdbfe;
+        }
+
+        .wheel-separator-line.r4 {
+            border-color: #e9d5ff;
+        }
+
+        .wheel-separator+.wheel-separator {
+            margin-top: 4px;
+        }
     </style>
     <script>
         tailwind.config = {
@@ -187,46 +240,48 @@
             </div>
 
             <!-- ===== LABEL HARI INI ===== -->
-            <div class="flex items-center gap-3 fade-up">
-                <div class="flex items-center gap-2 px-2 py-0.5 rounded-full bg-red-50 border border-red-100">
-                    <span class="relative flex h-2 w-2">
+            <div class="wheel-separator fade-up">
+
+                <!-- LIVE PILL -->
+                <div class="wheel-separator-pill bg-green-50 border border-green-100 text-green-700">
+
+                    <!-- LIVE DOT -->
+                    <span class="relative flex h-2.5 w-2.5">
                         <span
                             class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-2 w-2 bg-red-600"></span>
+
+                        <span
+                            class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-600 shadow-[0_0_10px_rgba(220,38,38,0.9)]">
+                        </span>
                     </span>
-                    <span
-                        class="text-[10px] font-extrabold text-red-700 uppercase tracking-widest leading-none">Live</span>
+
+                    <!-- TEXT -->
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] font-extrabold uppercase tracking-[0.18em] text-red-700">
+                            LIVE
+                        </span>
+
+                        <span class="w-px h-3 bg-green-700"></span>
+
+                        <span class="text-[11px] font-extrabold uppercase tracking-[0.14em] text-green-700">
+                            Hari Ini
+                        </span>
+                    </div>
                 </div>
 
-                <span class="text-sm font-bold text-gray-700 uppercase tracking-wider">Hari Ini</span>
-                <span class="flex-1 border-t border-dashed border-gray-300"></span>
-                <span id="todayDate" class="text-xs text-gray-400"></span>
+                <!-- DASH LINE -->
+                <hr class="wheel-separator-line r2" />
+
+                <!-- DATE -->
+                <span id="todayDate" class="text-xs text-gray-400 whitespace-nowrap font-medium">
+                </span>
             </div>
 
             <!-- ===== CARDS HARI INI ===== -->
             <div id="todayCards" class="grid grid-cols-1 md:grid-cols-3 gap-5 fade-up"></div>
 
-            <!-- ===== LABEL KEMARIN ===== -->
-            <div class="flex items-center gap-3 fade-up">
-                <span class="w-3 h-3 rounded-full bg-slate-400 inline-block"></span>
-                <span class="text-sm font-bold text-gray-700 uppercase tracking-wider">Kemarin</span>
-                <span class="flex-1 border-t border-dashed border-gray-300"></span>
-                <span id="yesterdayDate" class="text-xs text-gray-400"></span>
-            </div>
-
-            <!-- ===== CARDS KEMARIN ===== -->
-            <div id="yesterdayCards" class="grid grid-cols-1 md:grid-cols-3 gap-5 fade-up"></div>
-
-            <!-- ===== CHART ===== -->
-            <div class="fade-up bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                <h3 class="text-lg font-extrabold text-gray-800 mb-1">
-                    Perbandingan Transaksi (Hari Ini vs Kemarin)
-                </h3>
-                <p class="text-xs text-gray-400 mb-4">Total gabungan PKB dan BBNKB</p>
-                <div class="w-full h-[350px] md:h-[420px]">
-                    <canvas id="transaksiChart"></canvas>
-                </div>
-            </div>
+            <!-- ===== CARDS R2 & R4 HARI INI (3 kolom x 2 baris + separator) ===== -->
+            <div id="todayWheelCards" class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-3 fade-up"></div>
 
             <!-- ===== TABEL REAL-TIME ===== -->
             <div class="fade-up bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
@@ -251,19 +306,6 @@
                             </tr>
                         </thead>
                         <tbody id="tableBody">
-                            <!--
-                                ════════════════════════════════════════════════
-                                SUMBER DATA UTAMA — Edit baris di sini.
-                                Card "Data Hari Ini" otomatis menyesuaikan.
-
-                                FORMAT KOLOM:
-                                  data-roda       = label (2 / 4 / dst)
-                                  data-obj-pkb    = jumlah obyek PKB (angka)
-                                  data-pkb        = nominal PKB (angka, tanpa Rp / titik)
-                                  data-obj-bbnkb  = jumlah obyek BBNKB (angka)
-                                  data-bbnkb      = nominal BBNKB (angka, tanpa Rp / titik)
-                                ════════════════════════════════════════════════
-                            -->
                             <tr data-roda="2" data-obj-pkb="13470" data-pkb="7729944500" data-obj-bbnkb="182"
                                 data-bbnkb="20188000">
                                 <td></td>
@@ -297,10 +339,63 @@
                 </p>
             </div>
 
+            <!-- ===== CHART ===== -->
+            <div class="fade-up bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <h3 class="text-lg font-extrabold text-gray-800 mb-1">
+                    Perbandingan Transaksi (Hari Ini vs Kemarin)
+                </h3>
+                <p class="text-xs text-gray-400 mb-4">Total gabungan PKB dan BBNKB</p>
+                <div class="w-full h-[350px] md:h-[420px]">
+                    <canvas id="transaksiChart"></canvas>
+                </div>
+            </div>
+
         </main>
     </div>
 
     <script>
+        // ════════════════════════════════════════════════════════════════
+        // SVG ICONS — Motor (R2) & Mobil (R4)
+        // ════════════════════════════════════════════════════════════════
+
+        const SVG_MOTOR = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 48" fill="none"
+                stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"
+                style="width:26px;height:26px;flex-shrink:0;">
+            <!-- Roda belakang -->
+            <circle cx="20" cy="36" r="10"/>
+            <!-- Roda depan -->
+            <circle cx="76" cy="36" r="10"/>
+            <!-- Rangka utama -->
+            <path d="M20 36 L30 20 L48 18 L62 28 L76 36"/>
+            <!-- Setang & garpu depan -->
+            <path d="M62 28 L70 16 L80 18"/>
+            <line x1="70" y1="16" x2="76" y2="26"/>
+            <!-- Bodi atas / jok -->
+            <path d="M30 20 L36 10 L50 10 L56 18"/>
+            <!-- Knalpot -->
+            <path d="M20 36 Q14 34 10 38"/>
+            </svg>`;
+
+        const SVG_MOBIL = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 48" fill="none"
+            stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"
+            style="width:26px;height:26px;flex-shrink:0;">
+          <!-- Bodi bawah -->
+          <rect x="6" y="26" width="84" height="16" rx="4"/>
+          <!-- Atap & kaca -->
+          <path d="M16 26 L22 10 L74 10 L82 26"/>
+          <!-- Kaca depan & belakang -->
+          <polyline points="24,26 28,12 42,12 42,26"/>
+          <polyline points="54,26 54,12 68,12 72,26"/>
+          <!-- Tiang tengah -->
+          <line x1="48" y1="10" x2="48" y2="26"/>
+          <!-- Roda depan -->
+          <circle cx="72" cy="42" r="7" fill="white"/>
+          <circle cx="72" cy="42" r="3"/>
+          <!-- Roda belakang -->
+          <circle cx="24" cy="42" r="7" fill="white"/>
+          <circle cx="24" cy="42" r="3"/>
+        </svg>`;
+
         // ════════════════════════════════════════════════════════════════
         // DIGIT-LEVEL ANIMATION SYSTEM
         // ════════════════════════════════════════════════════════════════
@@ -384,13 +479,9 @@
         }
 
         // ════════════════════════════════════════════════════════════════
-        // READ DATA FROM TABLE — Sumber kebenaran adalah tabel HTML
+        // READ DATA FROM TABLE
         // ════════════════════════════════════════════════════════════════
 
-        /**
-         * Baca semua baris tabel dan agregasi menjadi data hari ini.
-         * Ini adalah SATU-SATUNYA sumber data untuk card Hari Ini.
-         */
         function readTableData() {
             const rows = document.querySelectorAll('#tableBody tr[data-roda]');
             let totalObjPkb = 0, totalPkb = 0, totalObjBbnkb = 0, totalBbnkb = 0;
@@ -412,9 +503,6 @@
             };
         }
 
-        /**
-         * Update footer tabel dengan total aggregasi
-         */
         function updateTableFooter(d) {
             const fmt = v => v.toLocaleString('id-ID');
             const el = id => document.getElementById(id);
@@ -424,10 +512,6 @@
             if (el('foot-bbnkb')) el('foot-bbnkb').textContent = 'Rp ' + fmt(d.bbnkb);
         }
 
-        /**
-         * Isi <td> dari data-* attributes pada <tr>
-         * Sumber kebenaran adalah data-* attributes, display adalah <td>
-         */
         function populateTableDisplay() {
             const rows = document.querySelectorAll('#tableBody tr[data-roda]');
             rows.forEach(row => {
@@ -449,27 +533,21 @@
         }
 
         // ════════════════════════════════════════════════════════════════
-        // DATA KEMARIN — Statis, tidak berubah selama sehari
+        // DATA KEMARIN — Statis
         // ════════════════════════════════════════════════════════════════
 
-        /**
-         * Data kemarin bersifat TETAP selama satu hari.
-         * Ganti manual atau ambil dari API saat halaman dimuat.
-         * 
-         * PENTING: total dan objTotal dihitung otomatis dari properti lainnya
-         * TODO: Ganti dengan fetch('/api/yesterday') jika tersedia.
-         */
         const yesterdayData = {
             objPkb: 14523,
             pkb: 8077405000,
             objBbnkb: 412,
             bbnkb: 68855000,
-            get total() {
-                return this.pkb + this.bbnkb;
-            },
-            get objTotal() {
-                return this.objPkb + this.objBbnkb;
-            }
+            get total() { return this.pkb + this.bbnkb; },
+            get objTotal() { return this.objPkb + this.objBbnkb; }
+        };
+
+        const yesterdayByWheel = {
+            "2": { objPkb: 13800, pkb: 7900000000, objBbnkb: 380, bbnkb: 60000000 },
+            "4": { objPkb: 723, pkb: 177405000, objBbnkb: 32, bbnkb: 8855000 },
         };
 
         // ════════════════════════════════════════════════════════════════
@@ -509,36 +587,24 @@
         }
 
         // ════════════════════════════════════════════════════════════════
-        // RENDER CARDS HARI INI — Bersumber dari tabel
+        // RENDER CARDS HARI INI
         // ════════════════════════════════════════════════════════════════
 
         function getTrendStyle(percent) {
             if (percent > 0) {
-                return {
-                    border: 'border-green-400',
-                    badge: 'badge-up',
-                    text: 'text-green-600'
-                };
+                return { border: 'border-green-400', badge: 'badge-up', text: 'text-green-600' };
             }
             if (percent > -10) {
-                return {
-                    border: 'border-yellow-400',
-                    badge: 'badge-neutral',
-                    text: 'text-yellow-600'
-                };
+                return { border: 'border-yellow-400', badge: 'badge-neutral', text: 'text-yellow-600' };
             }
-            return {
-                border: 'border-red-400',
-                badge: 'badge-down',
-                text: 'text-red-600'
-            };
+            return { border: 'border-red-400', badge: 'badge-down', text: 'text-red-600' };
         }
 
         function renderTodayCards() {
-            const td = readTableData();        // data hari ini dari tabel
-            const yd = yesterdayData;          // data kemarin (statis)
+            const td = readTableData();
+            const yd = yesterdayData;
 
-            updateTableFooter(td);              // sync footer tabel
+            updateTableFooter(td);
 
             const items = [
                 {
@@ -577,45 +643,86 @@
                 container.innerHTML = items.map(item => {
                     const pctNom = calcPercent(item.nomVal, item.cmpNom);
                     const pctObj = calcPercent(item.objVal, item.cmpObj);
+
                     const trendNom = getTrendStyle(pctNom);
                     const trendObj = getTrendStyle(pctObj);
+
                     return `
-                <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 border-l-4 ${trendNom.border}">
-                    <!-- Label -->
-                    <div class="flex items-center gap-2 mb-3">
-                        <p class="text-xs text-gray-500 font-semibold uppercase tracking-wide">${item.label}</p>
-                    </div>
+    <div class="bg-white rounded-2xl p-5 md:p-4 shadow-sm border border-gray-100 border-l-4 ${trendNom.border} flex flex-col gap-2 min-w-0">
 
-                    <!-- Nominal -->
-                    <h3 id="num-nom-${item.id}" class="text-xl font-extrabold ${item.color} number-display mb-1"></h3>
+        <!-- Label -->
+        <span class="self-start text-xs md:text-[10px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded-full bg-green-50 text-green-700 border border-green-100">
+            ${item.label}
+        </span>
 
-                    <!-- Selisih Nominal -->
-                    <div class="flex items-center gap-2 mb-3 pt-2">
-                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${trendNom.badge}">
-                            ${pctNom >= 0 ? '↑' : '↓'} <span id="pct-nom-${item.id}">${formatPercent(pctNom)}</span>
+        <!-- Nominal -->
+        <h3 id="num-nom-${item.id}"
+            class="font-extrabold text-gray-800 number-display leading-tight text-2xl md:text-lg lg:text-xl"
+            style="word-break: break-all; overflow-wrap: anywhere;">
+        </h3>
+
+        <!-- Persentase nominal -->
+        <div class="flex items-center justify-between mb-1 md:mb-0">
+            <span class="inline-flex items-center gap-1 md:gap-0.5 px-2 md:px-1.5 py-0.5 rounded-full text-xs md:text-[10px] font-semibold ${trendNom.badge}">
+                ${pctNom >= 0 ? '↑' : '↓'}
+                <span id="pct-nom-${item.id}">
+                    ${formatPercent(pctNom)}
+                </span>
+            </span>
+
+            <!-- JANGAN DIUBAH -->
+            <div class="text-right ml-auto pl-2 flex-shrink-0">
+                <p class="text-[10px] text-gray-400 leading-none">
+                    kemarin
+                </p>
+
+                <p class="text-xs md:text-[10px] text-gray-400 font-medium"
+                    style="white-space:nowrap;">
+                    Rp ${item.cmpNom.toLocaleString('id-ID')}
+                </p>
+            </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="card-divider !my-0"></div>
+
+        <!-- Jumlah Obyek -->
+        <div>
+            <p class="text-xs md:text-[9px] text-gray-400 leading-none mb-0.5">
+                Jumlah Obyek
+            </p>
+
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-0.5">
+                    <p id="num-obj-${item.id}"
+                        class="text-sm md:text-xs font-bold text-gray-700">
+                        ${item.objVal.toLocaleString('id-ID')}
+                    </p>
+
+                    <span class="inline-flex items-center gap-0.5 px-2 md:px-1.5 py-0.5 rounded-full text-xs md:text-[10px] font-semibold ${trendObj.badge}">
+                        ${pctObj >= 0 ? '↑' : '↓'}
+                        <span id="pct-obj-${item.id}">
+                            ${formatPercent(pctObj)}
                         </span>
-                        <span class="text-xs text-gray-400">perbandingan kemarin</span>
-                    </div>
+                    </span>
+                </div>
 
-                    <!-- Divider -->
-                    <div class="card-divider"></div>
+                <div class="text-right ml-auto pl-2 flex-shrink-0">
+                    <p class="text-[10px] text-gray-400 leading-none">
+                        kemarin
+                    </p>
 
-                    <!-- Obyek -->
-                    <div class="stat-row">
-                        <div>
-                            <p class="text-xs text-gray-400 mb-0.5">Jumlah Obyek</p>
-                            <p id="num-obj-${item.id}" class="text-sm font-bold text-gray-700">
-                                ${item.objVal.toLocaleString('id-ID')}
-                            </p>
-                        </div>
-                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${trendObj.badge}">
-                            ${pctObj >= 0 ? '↑' : '↓'} <span id="pct-obj-${item.id}">${formatPercent(pctObj)}</span>
-                        </span>
-                    </div>
-                </div>`;
+                    <p class="text-xs md:text-[10px] text-gray-500 font-medium"
+                        style="white-space:nowrap;">
+                        ${item.cmpObj.toLocaleString('id-ID')}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    `;
                 }).join('');
             } else {
-                // Update tanpa rebuild DOM
                 items.forEach(item => {
                     const pctNom = calcPercent(item.nomVal, item.cmpNom);
                     const pctObj = calcPercent(item.objVal, item.cmpObj);
@@ -629,115 +736,48 @@
                     const elPctNom = document.getElementById(`pct-nom-${item.id}`);
                     const elPctObj = document.getElementById(`pct-obj-${item.id}`);
 
-                    // ✅ BORDER CARD
                     if (card) {
                         card.classList.remove('border-green-400', 'border-yellow-400', 'border-red-400');
                         card.classList.add(trendNom.border);
                     }
 
-                    // ✅ BADGE NOMINAL — Fix: gunakan parentElement untuk outer span
                     if (elPctNom) {
-                        const badgeSpan = elPctNom.parentElement;  // outer span dengan badge class
+                        const badgeSpan = elPctNom.parentElement;
                         const indicator = pctNom >= 0 ? '↑' : '↓';
-
                         if (badgeSpan) {
-                            // Update indicator + percentage text
                             badgeSpan.innerHTML = `${indicator} <span id="pct-nom-${item.id}">${formatPercent(pctNom)}</span>`;
-
-                            // Update badge color class
                             badgeSpan.classList.remove('badge-up', 'badge-down', 'badge-neutral');
                             badgeSpan.classList.add(trendNom.badge);
+                            const vsContainer = badgeSpan.nextElementSibling;
+                            if (vsContainer) {
+                                const valueEl = vsContainer.querySelector('p:last-child');
+
+                                if (valueEl) {
+                                    valueEl.textContent = `Rp ${item.cmpNom.toLocaleString('id-ID')}`;
+                                }
+                            }
                         }
                     }
 
-                    // ✅ BADGE OBYEK — Fix: gunakan parentElement untuk outer span
                     if (elPctObj) {
-                        const badgeSpan = elPctObj.parentElement;  // outer span dengan badge class
+                        const badgeSpan = elPctObj.parentElement;
                         const indicator = pctObj >= 0 ? '↑' : '↓';
-
                         if (badgeSpan) {
-                            // Update indicator + percentage text
                             badgeSpan.innerHTML = `${indicator} <span id="pct-obj-${item.id}">${formatPercent(pctObj)}</span>`;
-
-                            // Update badge color class
                             badgeSpan.classList.remove('badge-up', 'badge-down', 'badge-neutral');
                             badgeSpan.classList.add(trendObj.badge);
+                            // cmpObj (kemarin) bersifat statis — tidak perlu di-update
                         }
                     }
 
-                    // ✅ UPDATE JUMLAH OBYEK
                     const elObj = document.getElementById(`num-obj-${item.id}`);
-                    if (elObj) {
-                        elObj.textContent = item.objVal.toLocaleString('id-ID');
-                    }
+                    if (elObj) elObj.textContent = item.objVal.toLocaleString('id-ID');
                 });
             }
 
-            // Render angka dengan digit animation
             requestAnimationFrame(() => {
                 items.forEach(item => {
                     renderNumberDisplay(`num-nom-${item.id}`, item.nomVal, `today-nom-${item.id}`);
-                });
-            });
-        }
-
-        // ════════════════════════════════════════════════════════════════
-        // RENDER CARDS KEMARIN — Statis, hanya di-render sekali
-        // ════════════════════════════════════════════════════════════════
-
-        function renderYesterdayCards() {
-            const yd = yesterdayData;
-            const container = document.getElementById('yesterdayCards');
-
-            const items = [
-                {
-                    id: 'yest-total',
-                    label: 'Total Transaksi',
-                    color: 'text-gray-600',
-                    nomVal: yd.total,
-                    objVal: yd.objTotal,
-                },
-                {
-                    id: 'yest-pkb',
-                    label: 'PKB (Pajak Kendaraan Bermotor)',
-                    color: 'text-gray-600',
-                    nomVal: yd.pkb,
-                    objVal: yd.objPkb,
-                },
-                {
-                    id: 'yest-bbnkb',
-                    label: 'BBNKB (Bea Balik Nama)',
-                    color: 'text-gray-600',
-                    nomVal: yd.bbnkb,
-                    objVal: yd.objBbnkb,
-                },
-            ];
-
-            container.innerHTML = items.map(item => `
-            <div class="bg-white/70 rounded-2xl p-5 shadow-sm border border-gray-100 border-l-4 border-l-gray-300">
-                <!-- Label -->
-                <div class="flex items-center gap-2 mb-3">
-                    <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide">${item.label}</p>
-                </div>
-
-                <!-- Nominal -->
-                <h3 id="num-nom-${item.id}" class="text-xl font-bold ${item.color} number-display mb-3"></h3>
-
-                <!-- Divider -->
-                <div class="card-divider"></div>
-
-                <!-- Obyek -->
-                <div>
-                    <p class="text-xs text-gray-400 mb-0.5">Jumlah Obyek</p>
-                    <p class="text-sm font-bold text-gray-500">${item.objVal.toLocaleString('id-ID')}</p>
-                </div>
-            </div>
-        `).join('');
-
-            // Render angka dengan digit animation (hanya sekali)
-            requestAnimationFrame(() => {
-                items.forEach(item => {
-                    renderNumberDisplay(`num-nom-${item.id}`, item.nomVal, `yest-nom-${item.id}`);
                 });
             });
         }
@@ -755,12 +795,11 @@
 
             if (transaksiChartInstance) transaksiChartInstance.destroy();
 
-            const td = readTableData();       // Data hari ini dari tabel
-            const yd = yesterdayData;         // Data kemarin — SAMA DENGAN CARD KEMARIN
+            const td = readTableData();
+            const yd = yesterdayData;
 
-            // ✅ TOTAL GABUNGAN PKB + BBNKB
             const todayTotal = td.pkb + td.bbnkb;
-            const yesterdayTotal = yd.pkb + yd.bbnkb;  // Dari yesterdayData (card kemarin)
+            const yesterdayTotal = yd.pkb + yd.bbnkb;
 
             transaksiChartInstance = new Chart(ctx, {
                 type: 'bar',
@@ -780,9 +819,7 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: {
-                            display: false
-                        },
+                        legend: { display: false },
                         tooltip: {
                             backgroundColor: '#111827',
                             padding: 12,
@@ -802,22 +839,15 @@
                             },
                             grid: { color: '#e5e7eb' }
                         },
-                        x: {
-                            grid: { display: false }
-                        }
+                        x: { grid: { display: false } }
                     },
-                    animation: {
-                        duration: 700,
-                        easing: 'easeOutCubic'
-                    }
+                    animation: { duration: 700, easing: 'easeOutCubic' }
                 }
             });
         }
 
         // ════════════════════════════════════════════════════════════════
-        // MUTATION OBSERVER — Deteksi perubahan tabel otomatis
-        // Jika data di tabel diubah programatik / via API, card langsung
-        // ikut ter-update tanpa perlu memanggil fungsi update manual.
+        // MUTATION OBSERVER
         // ════════════════════════════════════════════════════════════════
 
         function observeTable() {
@@ -827,6 +857,7 @@
             const observer = new MutationObserver(() => {
                 updateTimestamp();
                 renderTodayCards();
+                renderTodayWheelCards();
                 renderTransaksiChart();
             });
 
@@ -839,20 +870,6 @@
             });
         }
 
-        // ════════════════════════════════════════════════════════════════
-        // CONTOH: Cara update data dari API / backend
-        // ════════════════════════════════════════════════════════════════
-
-        /**
-         * Panggil fungsi ini untuk update satu baris tabel.
-         * Card Hari Ini akan otomatis ikut berubah via MutationObserver.
-         *
-         * @param {string} roda    - nilai atribut data-roda (misal "2" atau "4")
-         * @param {object} newData - { objPkb, pkb, objBbnkb, bbnkb }
-         *
-         * Contoh penggunaan:
-         *   updateTableRow("2", { objPkb: 1800, pkb: 250000000, objBbnkb: 5, bbnkb: 8000000 });
-         */
         function updateTableRow(roda, newData) {
             const row = document.querySelector(`#tableBody tr[data-roda="${roda}"]`);
             if (!row) return;
@@ -862,18 +879,194 @@
             row.dataset.objBbnkb = newData.objBbnkb;
             row.dataset.bbnkb = newData.bbnkb;
 
-            // Update display dari data attributes
             populateTableDisplay();
+        }
+
+        // ════════════════════════════════════════════════════════════════
+        // RENDER CARDS R2 & R4 HARI INI — dengan separator + SVG icon
+        // ════════════════════════════════════════════════════════════════
+
+        function renderTodayWheelCards() {
+            const rows = document.querySelectorAll('#tableBody tr[data-roda]');
+            const todayByWheel = {};
+            rows.forEach(row => {
+                const roda = row.dataset.roda;
+                todayByWheel[roda] = {
+                    objPkb: parseInt(row.dataset.objPkb || 0),
+                    pkb: parseInt(row.dataset.pkb || 0),
+                    objBbnkb: parseInt(row.dataset.objBbnkb || 0),
+                    bbnkb: parseInt(row.dataset.bbnkb || 0),
+                };
+            });
+
+            const container = document.getElementById('todayWheelCards');
+            const isFirstRender = !container.hasChildNodes();
+
+            const buildItems = (roda) => {
+                const td = todayByWheel[roda] || { objPkb: 0, pkb: 0, objBbnkb: 0, bbnkb: 0 };
+                const yd = yesterdayByWheel[roda] || { objPkb: 0, pkb: 0, objBbnkb: 0, bbnkb: 0 };
+                return [
+                    {
+                        id: `today-r${roda}-total`,
+                        label: `R${roda} · Total`,
+                        accentBg: roda === '2' ? 'bg-blue-50' : 'bg-purple-50',
+                        accentText: roda === '2' ? 'text-blue-700' : 'text-purple-700',
+                        nomVal: td.pkb + td.bbnkb, objVal: td.objPkb + td.objBbnkb,
+                        cmpNom: yd.pkb + yd.bbnkb, cmpObj: yd.objPkb + yd.objBbnkb,
+                    },
+                    {
+                        id: `today-r${roda}-pkb`,
+                        label: `R${roda} · PKB`,
+                        accentBg: roda === '2' ? 'bg-blue-50' : 'bg-purple-50',
+                        accentText: roda === '2' ? 'text-blue-700' : 'text-purple-700',
+                        nomVal: td.pkb, objVal: td.objPkb,
+                        cmpNom: yd.pkb, cmpObj: yd.objPkb,
+                    },
+                    {
+                        id: `today-r${roda}-bbnkb`,
+                        label: `R${roda} · BBNKB`,
+                        accentBg: roda === '2' ? 'bg-blue-50' : 'bg-purple-50',
+                        accentText: roda === '2' ? 'text-blue-700' : 'text-purple-700',
+                        nomVal: td.bbnkb, objVal: td.objBbnkb,
+                        cmpNom: yd.bbnkb, cmpObj: yd.objBbnkb,
+                    },
+                ];
+            };
+
+            const r2Items = buildItems('2');
+            const r4Items = buildItems('4');
+            const allItems = [...r2Items, ...r4Items];
+
+            if (isFirstRender) {
+
+                // ── Template kartu ──────────────────────────────────────
+                const renderCard = (item) => {
+                    const pctNom = calcPercent(item.nomVal, item.cmpNom);
+                    const pctObj = calcPercent(item.objVal, item.cmpObj);
+                    const tNom = getTrendStyle(pctNom);
+                    const tObj = getTrendStyle(pctObj);
+                    return `
+                    <div class="bg-white rounded-2xl p-5 md:p-4 shadow-sm border border-gray-100 border-l-4 ${tNom.border} flex flex-col gap-2 min-w-0">
+
+                        <!-- Label pill -->
+                        <span class="self-start text-xs md:text-[10px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded-full ${item.accentBg} ${item.accentText}">${item.label}</span>
+
+                        <!-- Nominal — besar di mobile, kompak di desktop -->
+                        <h4 id="num-nom-${item.id}"
+                            class="font-extrabold text-gray-800 number-display leading-tight text-2xl md:text-lg lg:text-xl"
+                            style="word-break: break-all; overflow-wrap: anywhere;">
+                        </h4>
+
+                        <!-- Badge % nominal + nilai kemarin -->
+                        <div class="flex items-center justify-between mb-1 md:mb-0">
+                            <span class="inline-flex items-center gap-1 md:gap-0.5 px-2 md:px-1.5 py-0.5 rounded-full text-xs md:text-[10px] font-semibold ${tNom.badge}">
+                                ${pctNom >= 0 ? '↑' : '↓'} <span id="pct-nom-${item.id}">${formatPercent(pctNom)}</span>
+                            </span>
+                            <div class="text-right ml-auto pl-2 flex-shrink-0">
+                                <p class="text-[10px] text-gray-400 leading-none">kemarin</p>
+                                <p class="text-xs md:text-[10px] text-gray-400 font-medium" style="white-space:nowrap;">Rp ${item.cmpNom.toLocaleString('id-ID')}</p>
+                            </div>
+                        </div>
+
+                        <!-- Divider -->
+                        <div class="card-divider !my-0"></div>
+
+                        <!-- Obyek -->
+                        <div>
+                            <p class="text-xs md:text-[9px] text-gray-400 leading-none mb-0.5">Jumlah Obyek</p>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-0.5">
+                                    <p id="num-obj-${item.id}" class="text-sm md:text-xs font-bold text-gray-700">${item.objVal.toLocaleString('id-ID')}</p>
+                                    <span class="inline-flex items-center gap-0.5 px-2 md:px-1.5 py-0.5 rounded-full text-xs md:text-[10px] font-semibold ${tObj.badge}">
+                                        ${pctObj >= 0 ? '↑' : '↓'} <span id="pct-obj-${item.id}">${formatPercent(pctObj)}</span>
+                                    </span>
+                                </div>
+                                <div class="text-right ml-auto pl-2 flex-shrink-0">
+                                    <p class="text-[10px] text-gray-400 leading-none">kemarin</p>
+                                    <p class="text-xs md:text-[10px] text-gray-500 font-medium" style="white-space:nowrap;">${item.cmpObj.toLocaleString('id-ID')}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                };
+
+                // ── Separator R2 ─────────────────────────────────────────
+                const separatorR2 = `
+                    <div class="wheel-separator">
+                        <div class="wheel-separator-pill r2">
+                            ${SVG_MOTOR}
+                            <span>Kendaraan Roda 2</span>
+                        </div>
+                        <hr class="wheel-separator-line r2"/>
+                    </div>`;
+
+                // ── Separator R4 ─────────────────────────────────────────
+                const separatorR4 = `
+                    <div class="wheel-separator" style="margin-top:4px;">
+                        <div class="wheel-separator-pill r4">
+                            ${SVG_MOBIL}
+                            <span>Kendaraan Roda 4</span>
+                        </div>
+                        <hr class="wheel-separator-line r4"/>
+                    </div>`;
+
+                container.innerHTML =
+                    separatorR2 +
+                    r2Items.map(renderCard).join('') +
+                    separatorR4 +
+                    r4Items.map(renderCard).join('');
+
+            } else {
+                // Update tanpa rebuild DOM — separator tidak disentuh
+                allItems.forEach(item => {
+                    const pctNom = calcPercent(item.nomVal, item.cmpNom);
+                    const pctObj = calcPercent(item.objVal, item.cmpObj);
+                    const tNom = getTrendStyle(pctNom);
+                    const tObj = getTrendStyle(pctObj);
+
+                    const elNom = document.getElementById(`num-nom-${item.id}`);
+                    const card = elNom?.closest('.border-l-4');
+                    if (card) {
+                        card.classList.remove('border-green-400', 'border-yellow-400', 'border-red-400');
+                        card.classList.add(tNom.border);
+                    }
+
+                    const elPctNom = document.getElementById(`pct-nom-${item.id}`);
+                    if (elPctNom) {
+                        const badge = elPctNom.parentElement;
+                        badge.innerHTML = `${pctNom >= 0 ? '↑' : '↓'} <span id="pct-nom-${item.id}">${formatPercent(pctNom)}</span>`;
+                        badge.classList.remove('badge-up', 'badge-down', 'badge-neutral');
+                        badge.classList.add(tNom.badge);
+                        // cmpNom (kemarin) statis — tidak di-update
+                    }
+
+                    const elPctObj = document.getElementById(`pct-obj-${item.id}`);
+                    if (elPctObj) {
+                        const badge = elPctObj.parentElement;
+                        badge.innerHTML = `${pctObj >= 0 ? '↑' : '↓'} <span id="pct-obj-${item.id}">${formatPercent(pctObj)}</span>`;
+                        badge.classList.remove('badge-up', 'badge-down', 'badge-neutral');
+                        badge.classList.add(tObj.badge);
+                        // cmpObj (kemarin) statis — tidak di-update
+                    }
+
+                    const elObj = document.getElementById(`num-obj-${item.id}`);
+                    if (elObj) elObj.textContent = item.objVal.toLocaleString('id-ID');
+                });
+            }
+
+            requestAnimationFrame(() => {
+                allItems.forEach(item => {
+                    renderNumberDisplay(`num-nom-${item.id}`, item.nomVal, `today-wheel-nom-${item.id}`);
+                });
+            });
         }
 
         // ════════════════════════════════════════════════════════════════
         // INIT
         // ════════════════════════════════════════════════════════════════
 
-        // Isi label tanggal
         setDateLabels();
 
-        // Layout (dari script.js project Anda)
         if (typeof loadLayouts === 'function') {
             loadLayouts('Transaksi Samsat Provinsi', 'Jawa Tengah Hari Ini').then(() => {
                 const filterContainer = document.querySelector('#topbar .filter-row');
@@ -881,26 +1074,18 @@
             });
         }
 
-        // Populate display dari data attributes
         populateTableDisplay();
-
-        // Initial render
         updateTimestamp();
         renderTodayCards();
-        renderYesterdayCards();
+        renderTodayWheelCards();
         renderTransaksiChart();
 
-        // Pasang observer setelah DOM siap
         observeTable();
 
         // ════════════════════════════════════════════════════════════════
-        // SIMULASI UPDATE PERIODIK (HAPUS jika sudah pakai API / push)
-        // Interval ini mensimulasikan perubahan data dari tabel.
-        // Di production, ganti dengan panggilan API Anda sendiri,
-        // lalu gunakan updateTableRow() untuk mengubah data tabel.
+        // SIMULASI UPDATE PERIODIK
         // ════════════════════════════════════════════════════════════════
         setInterval(() => {
-            // Simulasi penambahan data pada roda 2
             const row2 = document.querySelector('#tableBody tr[data-roda="2"]');
             if (row2) {
                 const curPkb = parseInt(row2.dataset.pkb) + Math.floor(Math.random() * 200000000);
