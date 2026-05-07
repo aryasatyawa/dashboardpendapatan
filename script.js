@@ -118,6 +118,7 @@ function initTopbarFilters() {
     const currentDate = new Date();
     const defaultToday = currentDate.toISOString().split('T')[0];
 
+    tanggal.min = '2025-01-01';
     tanggal.max = defaultToday;
 
     if (selectedTanggal) {
