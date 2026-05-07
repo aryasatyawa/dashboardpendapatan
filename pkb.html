@@ -274,16 +274,27 @@
 
         function renderPeriode() {
             const params = new URLSearchParams(window.location.search);
-            const bulan = parseInt(params.get('bulan')) || 4;
-            const tahun = params.get('tahun') || '2026';
+            const tanggalParam = params.get('tanggal');
+            const tahun = params.get('tahun') || new Date().getFullYear().toString();
+
+            let selectedDate;
+            if (tanggalParam) {
+                selectedDate = new Date(tanggalParam);
+            } else {
+                selectedDate = new Date();
+            }
+            if (Number.isNaN(selectedDate.getTime())) {
+                selectedDate = new Date();
+            }
+
+            const day = selectedDate.getDate();
+            const month = selectedDate.getMonth() + 1;
 
             const el = document.getElementById('periodeText');
-            if (el) el.textContent = `s.d ${BULAN_LABEL[bulan]} ${tahun}`;
+            if (el) el.textContent = `s.d ${day} ${BULAN_LABEL[month]} ${tahun}`;
 
-            const selBulan = document.getElementById('filterBulan');
-            const selTahun = document.getElementById('filterTahun');
-            if (selBulan) selBulan.value = bulan;
-            if (selTahun) selTahun.value = tahun;
+            const selTanggal = document.getElementById('filterTanggal');
+            if (selTanggal) selTanggal.value = tanggalParam || '';
         }
 
         function renderKomposisi() {

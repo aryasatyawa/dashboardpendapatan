@@ -108,27 +108,39 @@ function setActiveSidebar() {
 function initTopbarFilters() {
 
     const uppd = document.getElementById('filterUppd');
-    const tahun = document.getElementById('filterTahun');
-    const bulan = document.getElementById('filterBulan');
+    const tanggal = document.getElementById('filterTanggal');
     const jenis = document.getElementById('filterJenis');
 
-    if (!uppd || !tahun || !bulan || !jenis) return;
+    if (!uppd || !tanggal || !jenis) return;
 
+    const urlParams = new URLSearchParams(window.location.search);
+    const selectedTanggal = urlParams.get('tanggal');
+    const currentDate = new Date();
+    const defaultToday = currentDate.toISOString().split('T')[0];
+
+    tanggal.max = defaultToday;
+
+    if (selectedTanggal) {
+        tanggal.value = selectedTanggal;
+    } else {
+        tanggal.value = '';
+        tanggal.placeholder = 'Pilih tanggal';
+    }
 
     function applyFilter() {
 
         const params = new URLSearchParams(window.location.search);
+        const tanggalValue = tanggal.value || defaultToday;
 
         params.set('uppd', uppd.value);
-        params.set('tahun', tahun.value);
-        params.set('bulan', bulan.value);
+        params.set('tanggal', tanggalValue);
         params.set('jenis', jenis.value);
 
         window.location.search = params.toString();
     }
 
 
-    [uppd, tahun, bulan, jenis].forEach(el => {
+    [uppd, bulan, jenis].forEach(el => {
 
         if (el.dataset.bound) return;
 
@@ -319,28 +331,12 @@ class="flex-shrink-0 border border-gray-200 rounded-lg px-3 py-2 text-sm font-me
 <option value="tegal1">UPPD Tegal I</option>
 </select>
 
-<select id="filterTahun"
-class="flex-shrink-0 border border-gray-200 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 bg-white min-w-[80px]">
-<option value="2026">2026</option>
-<option value="2025">2025</option>
-<option value="2024">2024</option>
-</select>
-
-<select id="filterBulan"
-class="flex-shrink-0 border border-gray-200 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 bg-white min-w-[100px]">
-<option value="1">Januari</option>
-<option value="2">Februari</option>
-<option value="3">Maret</option>
-<option value="4" selected>April</option>
-<option value="5">Mei</option>
-<option value="6">Juni</option>
-<option value="7">Juli</option>
-<option value="8">Agustus</option>
-<option value="9">September</option>
-<option value="10">Oktober</option>
-<option value="11">November</option>
-<option value="12">Desember</option>
-</select>
+<input 
+    type="date"
+    id="filterTanggal"
+    placeholder="Pilih tanggal"
+    class="flex-shrink-0 border border-gray-200 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 bg-white min-w-[160px]"
+>
 
 <select id="filterJenis"
 class="flex-shrink-0 border border-gray-200 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 bg-white min-w-[120px]">
