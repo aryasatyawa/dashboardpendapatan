@@ -138,7 +138,7 @@
 
         <!-- CONTENT -->
         <!-- CONTENT -->
-        <main class="flex-1 overflow-hidden px-6 py-5">
+        <main class="flex-1 overflow-y-auto px-6 py-5">
 
             <div class="h-full flex flex-col gap-5">
 
@@ -171,27 +171,37 @@
                         <div class="space-y-3">
 
                             <div class="legend-item">
-                                <span class="legend-color bg-emerald-800"></span>
-                                <span>90–100%</span>
+                                <span class="legend-color" style="background:#064e3b"></span>
+                                <span>≥110%</span>
                             </div>
 
                             <div class="legend-item">
-                                <span class="legend-color bg-emerald-500"></span>
+                                <span class="legend-color" style="background:#065f46"></span>
+                                <span>100–109%</span>
+                            </div>
+
+                            <div class="legend-item">
+                                <span class="legend-color" style="background:#059669"></span>
+                                <span>90–99%</span>
+                            </div>
+
+                            <div class="legend-item">
+                                <span class="legend-color" style="background:#10b981"></span>
                                 <span>80–89%</span>
                             </div>
 
                             <div class="legend-item">
-                                <span class="legend-color bg-lime-500"></span>
+                                <span class="legend-color" style="background:#84cc16"></span>
                                 <span>70–79%</span>
                             </div>
 
                             <div class="legend-item">
-                                <span class="legend-color bg-yellow-400"></span>
+                                <span class="legend-color" style="background:#facc15"></span>
                                 <span>60–69%</span>
                             </div>
 
                             <div class="legend-item">
-                                <span class="legend-color bg-red-500"></span>
+                                <span class="legend-color" style="background:#ef4444"></span>
                                 <span>&lt;60%</span>
                             </div>
 
@@ -227,7 +237,7 @@
         const map = L.map('map', {
             zoomControl: true,
             fullscreenControl: true
-        }).setView([-7.150975, 110.140259], 9);
+        }).setView([-7.95, 111.30], 8);
 
         // =========================================
         // TILE LAYER (BERWARNA)
@@ -247,7 +257,10 @@
         const wilayahData = {};
 
         function computePersen(realisasi, target) {
-            return Math.round(Math.min(100, (realisasi / target) * 100));
+            const t = Number(target) || 0;
+            const r = Number(realisasi) || 0;
+            if (t <= 0) return 0;
+            return Math.round((r / t) * 100);
         }
 
         function computeSelisih(realisasi, target) {
@@ -264,11 +277,13 @@
 
         function getColor(value) {
 
-            return value >= 90 ? '#065f46' :
-                value >= 80 ? '#10b981' :
-                    value >= 70 ? '#84cc16' :
-                        value >= 60 ? '#facc15' :
-                            '#ef4444';
+            return value >= 110 ? '#064e3b' :   // emerald-900
+                value >= 100 ? '#065f46' :     // emerald-800
+                    value >= 90 ? '#059669' :  // emerald-600
+                        value >= 80 ? '#10b981' : // emerald-500
+                            value >= 70 ? '#84cc16' : // lime-500
+                                value >= 60 ? '#facc15' : // yellow-400
+                                    '#ef4444'; // red-500
         }
 
         // =========================================
@@ -437,7 +452,7 @@
                         overflow:hidden;
                     ">
                         <div style="
-                            width:${persen}%;
+                            width:${Math.min(100, Math.max(0, persen))}%;
                             height:100%;
                             background:${getColor(persen)};
                             border-radius:999px;
@@ -477,10 +492,6 @@
                 style,
                 onEachFeature
             }).addTo(map);
-
-            map.fitBounds(geojson.getBounds(), {
-                padding: [15, 15]
-            });
         });
 
     </script>

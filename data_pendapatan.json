@@ -1,142 +1,142 @@
 {
     "Banjarnegara": {
-        "realisasi": 95000000000,
-        "target": 110000000000
-    },
-    "Banyumas": {
-        "realisasi": 105000000000,
-        "target": 120000000000
-    },
-    "Batang": {
-        "realisasi": 78000000000,
-        "target": 95000000000
-    },
-    "Blora": {
-        "realisasi": 88000000000,
-        "target": 100000000000
-    },
-    "Boyolali": {
-        "realisasi": 92000000000,
-        "target": 105000000000
-    },
-    "Brebes": {
-        "realisasi": 85000000000,
-        "target": 98000000000
-    },
-    "Cilacap": {
-        "realisasi": 102000000000,
-        "target": 115000000000
-    },
-    "Demak": {
-        "realisasi": 75000000000,
-        "target": 90000000000
-    },
-    "Grobogan": {
-        "realisasi": 82000000000,
-        "target": 95000000000
-    },
-    "Jepara": {
-        "realisasi": 89000000000,
-        "target": 102000000000
-    },
-    "Karanganyar": {
-        "realisasi": 96000000000,
-        "target": 110000000000
-    },
-    "Kebumen": {
-        "realisasi": 87000000000,
-        "target": 100000000000
-    },
-    "Kendal": {
-        "realisasi": 91000000000,
-        "target": 105000000000
-    },
-    "Klaten": {
-        "realisasi": 94000000000,
-        "target": 108000000000
-    },
-    "Kota Magelang": {
-        "realisasi": 68000000000,
-        "target": 80000000000
-    },
-    "Kota Pekalongan": {
-        "realisasi": 72000000000,
-        "target": 85000000000
-    },
-    "Kota Semarang": {
-        "realisasi": 120000000000,
-        "target": 135000000000
-    },
-    "Kota Tegal": {
-        "realisasi": 65000000000,
-        "target": 78000000000
-    },
-    "Kudus": {
-        "realisasi": 76000000000,
-        "target": 90000000000
-    },
-    "Magelang": {
-        "realisasi": 93000000000,
-        "target": 107000000000
-    },
-    "Pati": {
-        "realisasi": 84000000000,
-        "target": 97000000000
-    },
-    "Pekalongan": {
-        "realisasi": 88000000000,
-        "target": 101000000000
-    },
-    "Pemalang": {
-        "realisasi": 79000000000,
-        "target": 92000000000
-    },
-    "Purbalingga": {
-        "realisasi": 73000000000,
-        "target": 86000000000
-    },
-    "Purworejo": {
-        "realisasi": 81000000000,
-        "target": 94000000000
-    },
-    "Rembang": {
-        "realisasi": 70000000000,
-        "target": 82000000000
-    },
-    "Salatiga": {
-        "realisasi": 55000000000,
-        "target": 65000000000
-    },
-    "Semarang": {
-        "realisasi": 110000000000,
-        "target": 125000000000
-    },
-    "Sragen": {
-        "realisasi": 97000000000,
+        "realisasi": 87350000000,
         "target": 112000000000
     },
-    "Sukoharjo": {
-        "realisasi": 89000000000,
-        "target": 103000000000
+    "Banyumas": {
+        "realisasi": 128400000000,
+        "target": 134000000000
     },
-    "Surakarta": {
-        "realisasi": 85000000000,
+    "Batang": {
+        "realisasi": 64200000000,
         "target": 98000000000
     },
+    "Blora": {
+        "realisasi": 118700000000,
+        "target": 109000000000
+    },
+    "Boyolali": {
+        "realisasi": 99400000000,
+        "target": 121000000000
+    },
+    "Brebes": {
+        "realisasi": 78500000000,
+        "target": 115000000000
+    },
+    "Cilacap": {
+        "realisasi": 146200000000,
+        "target": 155000000000
+    },
+    "Demak": {
+        "realisasi": 68900000000,
+        "target": 97000000000
+    },
+    "Grobogan": {
+        "realisasi": 95400000000,
+        "target": 119000000000
+    },
+    "Jepara": {
+        "realisasi": 109800000000,
+        "target": 113000000000
+    },
+    "Karanganyar": {
+        "realisasi": 102500000000,
+        "target": 118000000000
+    },
+    "Kebumen": {
+        "realisasi": 71200000000,
+        "target": 104000000000
+    },
+    "Kendal": {
+        "realisasi": 98700000000,
+        "target": 111000000000
+    },
+    "Klaten": {
+        "realisasi": 115600000000,
+        "target": 126000000000
+    },
+    "Kota Magelang": {
+        "realisasi": 58400000000,
+        "target": 76000000000
+    },
+    "Kota Pekalongan": {
+        "realisasi": 77300000000,
+        "target": 81000000000
+    },
+    "Kota Salatiga": {
+        "realisasi": 48200000000,
+        "target": 72000000000
+    },
+    "Kota Semarang": {
+        "realisasi": 183500000000,
+        "target": 165000000000
+    },
+    "Kota Surakarta": {
+        "realisasi": 101700000000,
+        "target": 108000000000
+    },
+    "Kota Tegal": {
+        "realisasi": 59400000000,
+        "target": 83000000000
+    },
+    "Kudus": {
+        "realisasi": 132800000000,
+        "target": 129000000000
+    },
+    "Magelang": {
+        "realisasi": 96800000000,
+        "target": 116000000000
+    },
+    "Pati": {
+        "realisasi": 90600000000,
+        "target": 123000000000
+    },
+    "Pekalongan": {
+        "realisasi": 84200000000,
+        "target": 98000000000
+    },
+    "Pemalang": {
+        "realisasi": 63800000000,
+        "target": 101000000000
+    },
+    "Purbalingga": {
+        "realisasi": 75800000000,
+        "target": 93000000000
+    },
+    "Purworejo": {
+        "realisasi": 84600000000,
+        "target": 108000000000
+    },
+    "Rembang": {
+        "realisasi": 55200000000,
+        "target": 79000000000
+    },
+    "Semarang": {
+        "realisasi": 137200000000,
+        "target": 142000000000
+    },
+    "Sragen": {
+        "realisasi": 110500000000,
+        "target": 117000000000
+    },
+    "Sukoharjo": {
+        "realisasi": 97200000000,
+        "target": 114000000000
+    },
     "Tegal": {
-        "realisasi": 92000000000,
-        "target": 106000000000
+        "realisasi": 108900000000,
+        "target": 112000000000
     },
     "Temanggung": {
-        "realisasi": 74000000000,
-        "target": 87000000000
+        "realisasi": 69500000000,
+        "target": 91000000000
     },
     "Wonogiri": {
-        "realisasi": 86000000000,
-        "target": 99000000000
+        "realisasi": 88400000000,
+        "target": 109000000000
     },
     "Wonosobo": {
-        "realisasi": 78000000000,
-        "target": 91000000000
+        "realisasi": 73100000000,
+        "target": 95000000000
     }
 }
