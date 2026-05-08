@@ -179,7 +179,20 @@
                 <!-- ROW 3: PROGRESS HARIAN – FULL WIDTH -->
                 <div id="dailyCard" class="bg-green-400 rounded-xl p-3 md:p-4 text-white">
 
-                    <p class="text-[11px] text-white/80 mb-2">Progres Hari Ini</p>
+                    <!-- Header row: label + timestamp -->
+                    <div class="flex justify-between items-center mb-2">
+
+                        <p class="text-[16px] text-white">
+                            Progres Hari Ini
+                        </p>
+
+                        <div class="flex items-center gap-2 text-right text-white/70">
+                            <p id="updateTime" class="text-[11px] leading-none"></p>
+
+                            <p id="updateDate" class="text-[11px] leading-none"></p>
+                        </div>
+
+                    </div>
 
                     <div class="flex justify-between text-xs mb-2">
                         <span id="dailyReal">Rp 0</span>
@@ -313,12 +326,33 @@
             document.getElementById('lainPct').textContent = `(${lainPct.toFixed(1)}%)`;
         }
 
+        function renderTimestamp() {
+            const now = new Date();
+
+            // Format jam: HH:MM:SS
+            const jam = now.toLocaleTimeString('id-ID', {
+                hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+            });
+
+            // Format tanggal: Senin, 8 Mei 2026
+            const tanggal = now.toLocaleDateString('id-ID', {
+                weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+            });
+
+            const elTime = document.getElementById('updateTime');
+            const elDate = document.getElementById('updateDate');
+            if (elTime) elTime.textContent = jam;
+            if (elDate) elDate.textContent = tanggal;
+        }
+
         function renderAll() {
             renderDailyProgress();
             renderPotensi();
             renderRataRata();
             renderKomposisi();
+            renderTimestamp();
         }
+
 
         document.addEventListener('DOMContentLoaded', renderAll);
 
@@ -329,6 +363,8 @@
             renderDailyProgress();
             renderPotensi();
             renderRataRata();
+            // Panggil sekali saat load
+            renderTimestamp();
         }, 3000);
     </script>
 </body>
