@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Monitoring Peta Pendapatan Jawa Tengah</title>
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Fullscreen -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.fullscreen@2.4.0/Control.FullScreen.css" />
+
+    <script src="https://cdn.jsdelivr.net/npm/leaflet.fullscreen@2.4.0/Control.FullScreen.min.js"></script>
+
+    <!-- Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+
+    <link rel="icon" href="img/logojateng.png" />
+
+    <!-- Layout -->
+    <link href="style.css" rel="stylesheet" />
+    <script src="script.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif']
+                    },
+                    colors: {
+                        primary: {
+                            DEFAULT: '#1a3c8f',
+                            light: '#2450b5',
+                            dark: '#0f2660'
+                        },
+                        surface: '#f0f4ff'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .leaflet-container {
+            background: #dbeafe;
+        }
+
+        .leaflet-control-attribution {
+            display: none;
+        }
+
+        .leaflet-popup-content-wrapper {
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, .15);
+        }
+
+        .leaflet-popup-content {
+            margin: 16px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .leaflet-interactive {
+            transition: all .25s ease;
+        }
+
+        .leaflet-interactive:hover {
+            filter: brightness(1.08);
+        }
+
+        .map-label {
+            text-align: center;
+            pointer-events: none;
+        }
+
+        .map-label .nama {
+            background: rgba(255, 255, 255, .92);
+            color: #111827;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: 700;
+            display: inline-block;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, .15);
+            white-space: nowrap;
+        }
+
+        .map-label .persen {
+            margin-top: 3px;
+            color: white;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 999px;
+            display: inline-block;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .18);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .legend-color {
+            width: 14px;
+            height: 14px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body class="bg-surface font-sans text-gray-800 flex h-screen overflow-hidden dark:bg-gray-950 dark:text-gray-100">
+
+    <!-- SIDEBAR -->
+    <div id="sidebar-placeholder"></div>
+
+    <!-- MAIN -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+
+        <!-- TOPBAR -->
+        <div id="topbar-placeholder"></div>
+
+        <!-- CONTENT -->
+        <!-- CONTENT -->
+        <main class="flex-1 overflow-hidden px-6 py-5">
+
+            <div class="h-full flex flex-col gap-5">
+
+                <!-- HEADER -->
+                <div
+                    class="fade-up bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-800">
+
+                    <h2 class="font-extrabold text-2xl text-gray-800 dark:text-white mb-2">
+                        Monitoring Peta Pendapatan Jawa Tengah
+                    </h2>
+
+                    <p class="text-gray-500 dark:text-gray-400 text-sm">
+                        Visualisasi capaian realisasi pendapatan kabupaten/kota
+                        Provinsi Jawa Tengah secara real-time.
+                    </p>
+                </div>
+
+                <!-- MAP CARD -->
+                <section
+                    class="flex-1 bg-white dark:bg-gray-900 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-800 overflow-hidden relative">
+
+                    <!-- FLOATING LEGEND -->
+                    <div
+                        class="absolute bottom-5 right-5 z-[1000] bg-white/95 dark:bg-gray-900/95 backdrop-blur rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-4 w-[230px]">
+
+                        <h3 class="font-bold mb-4">
+                            Tingkat Realisasi
+                        </h3>
+
+                        <div class="space-y-3">
+
+                            <div class="legend-item">
+                                <span class="legend-color bg-emerald-800"></span>
+                                <span>90–100%</span>
+                            </div>
+
+                            <div class="legend-item">
+                                <span class="legend-color bg-emerald-500"></span>
+                                <span>80–89%</span>
+                            </div>
+
+                            <div class="legend-item">
+                                <span class="legend-color bg-lime-500"></span>
+                                <span>70–79%</span>
+                            </div>
+
+                            <div class="legend-item">
+                                <span class="legend-color bg-yellow-400"></span>
+                                <span>60–69%</span>
+                            </div>
+
+                            <div class="legend-item">
+                                <span class="legend-color bg-red-500"></span>
+                                <span>&lt;60%</span>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- MAP -->
+                    <div id="map" class="w-full h-full min-h-[700px]"></div>
+
+                </section>
+
+            </div>
+
+        </main>
+
+    </div>
+
+    <script>
+
+        // =========================================
+        // LOAD SIDEBAR + TOPBAR
+        // =========================================
+
+        loadLayouts(
+            'Monitoring Peta',
+            'Visualisasi realisasi pendapatan kabupaten/kota Jawa Tengah'
+        );
+
+        // =========================================
+        // MAP
+        // =========================================
+
+        const map = L.map('map', {
+            zoomControl: true,
+            fullscreenControl: true
+        }).setView([-7.150975, 110.140259], 9);
+
+        // =========================================
+        // TILE LAYER (BERWARNA)
+        // =========================================
+
+        L.tileLayer(
+            'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            {
+                attribution: '&copy; OpenStreetMap'
+            }
+        ).addTo(map);
+
+        // =========================================
+        // DATA DINAMIS
+        // =========================================
+
+        const wilayahData = {};
+
+        function computePersen(realisasi, target) {
+            return Math.round(Math.min(100, (realisasi / target) * 100));
+        }
+
+        function computeSelisih(realisasi, target) {
+            return Math.max(0, target - realisasi);
+        }
+
+        function formatNominal(value) {
+            return new Intl.NumberFormat('id-ID').format(value);
+        }
+
+        // =========================================
+        // COLOR
+        // =========================================
+
+        function getColor(value) {
+
+            return value >= 90 ? '#065f46' :
+                value >= 80 ? '#10b981' :
+                    value >= 70 ? '#84cc16' :
+                        value >= 60 ? '#facc15' :
+                            '#ef4444';
+        }
+
+        // =========================================
+        // STYLE
+        // =========================================
+
+        function style(feature) {
+
+            const nama =
+                feature.properties.name ||
+                feature.properties.NAME_2 ||
+                feature.properties.KABKOT ||
+                'Wilayah';
+
+            const data = wilayahData[nama];
+
+            if (!data) {
+                return {
+                    fillColor: '#cccccc',
+                    weight: 1.8,
+                    opacity: 1,
+                    color: '#ffffff',
+                    fillOpacity: 0.9
+                };
+            }
+
+            const persen = computePersen(data.realisasi, data.target);
+
+            return {
+                fillColor: getColor(persen),
+                weight: 1.8,
+                opacity: 1,
+                color: '#ffffff',
+                fillOpacity: 0.9
+            };
+        }
+
+        // =========================================
+        // HOVER
+        // =========================================
+
+        function highlightFeature(e) {
+
+            const layer = e.target;
+
+            layer.setStyle({
+                weight: 3,
+                color: '#1e293b',
+                fillOpacity: 1
+            });
+
+            layer.bringToFront();
+        }
+
+        function resetHighlight(e) {
+            geojson.resetStyle(e.target);
+        }
+
+        // =========================================
+        // LABEL
+        // =========================================
+
+        function addLabel(layer, nama, persen) {
+
+            const center = layer.getBounds().getCenter();
+
+            const marker = L.marker(center, {
+
+                interactive: false,
+
+                icon: L.divIcon({
+                    className: 'map-label',
+                    html: `
+                        <div class="nama">
+                            ${nama}
+                        </div>
+
+                        <div class="persen"
+                            style="background:${getColor(persen)}">
+                            ${persen}%
+                        </div>
+                    `,
+                    iconSize: [120, 40]
+                })
+            });
+
+            marker.addTo(map);
+        }
+
+        // =========================================
+        // EACH FEATURE
+        // =========================================
+
+        function onEachFeature(feature, layer) {
+
+            const nama =
+                feature.properties.name ||
+                feature.properties.NAME_2 ||
+                feature.properties.KABKOT ||
+                'Wilayah';
+
+            const data = wilayahData[nama];
+
+            if (!data) return;
+
+            const persen = computePersen(data.realisasi, data.target);
+            const selisih = computeSelisih(data.realisasi, data.target);
+
+            // popup hover
+            layer.bindTooltip(`
+                <div style="min-width:240px">
+
+                    <div style="
+                        font-size:16px;
+                        font-weight:800;
+                        margin-bottom:14px;
+                    ">
+                        ${nama}
+                    </div>
+
+                    <div style="
+                        display:flex;
+                        justify-content:space-between;
+                        margin-bottom:8px;
+                        font-size:13px;
+                    ">
+                        <span>Realisasi</span>
+                        <strong>Rp ${formatNominal(data.realisasi)}</strong>
+                    </div>
+
+                    <div style="
+                        display:flex;
+                        justify-content:space-between;
+                        margin-bottom:8px;
+                        font-size:13px;
+                    ">
+                        <span>Target</span>
+                        <strong>Rp ${formatNominal(data.target)}</strong>
+                    </div>
+
+                    <div style="
+                        display:flex;
+                        justify-content:space-between;
+                        margin-bottom:10px;
+                        font-size:13px;
+                    ">
+                        <span>Capaian</span>
+                        <strong>${persen}%</strong>
+                    </div>
+
+                    <div style="
+                        display:flex;
+                        justify-content:space-between;
+                        margin-bottom:12px;
+                        font-size:13px;
+                    ">
+                        <span>Menuju Target</span>
+                        <strong>Rp ${formatNominal(selisih)}</strong>
+                    </div>
+
+                    <div style="
+                        width:100%;
+                        height:10px;
+                        background:#e5e7eb;
+                        border-radius:999px;
+                        overflow:hidden;
+                    ">
+                        <div style="
+                            width:${persen}%;
+                            height:100%;
+                            background:${getColor(persen)};
+                            border-radius:999px;
+                        "></div>
+                    </div>
+
+                </div>
+            `, {
+                sticky: true,
+                direction: 'top',
+                opacity: 1
+            });
+
+            // label
+            addLabel(layer, nama, persen);
+
+            // hover effect
+            layer.on({
+                mouseover: highlightFeature,
+                mouseout: resetHighlight
+            });
+        }
+
+        // =========================================
+        // LOAD DATA DAN GEOJSON
+        // =========================================
+
+        let geojson;
+
+        Promise.all([
+            fetch('data_pendapatan.json').then(res => res.json()),
+            fetch('jawa_tengah.geojson').then(res => res.json())
+        ]).then(([dataPendapatan, geoData]) => {
+            Object.assign(wilayahData, dataPendapatan);
+
+            geojson = L.geoJSON(geoData, {
+                style,
+                onEachFeature
+            }).addTo(map);
+
+            map.fitBounds(geojson.getBounds(), {
+                padding: [15, 15]
+            });
+        });
+
+    </script>
+
+</body>
+
+</html>

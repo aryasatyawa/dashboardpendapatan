@@ -14,7 +14,26 @@ function loadTemplate(path, fallbackHtml) {
             if (!response.ok) throw new Error('Template fetch failed');
             return response.text();
         })
-        .then(html => insertHTML(path === 'sidebar.html' ? 'sidebar-placeholder' : 'topbar-placeholder', html))
+        .then(html => {
+            const trimmed = html.trim();
+            let content = html;
+
+            if (!trimmed) {
+                content = fallbackHtml;
+            } else {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(trimmed, 'text/html');
+                const bodyChildren = Array.from(doc.body.children).filter(node => node.nodeType === Node.ELEMENT_NODE);
+                const isOnlySidebarPlaceholder = bodyChildren.length === 1 && bodyChildren[0].matches('aside#sidebar') && !bodyChildren[0].innerHTML.trim();
+                const isOnlyTopbarPlaceholder = bodyChildren.length === 1 && bodyChildren[0].matches('header#topbar') && !bodyChildren[0].innerHTML.trim();
+
+                if (isOnlySidebarPlaceholder || isOnlyTopbarPlaceholder) {
+                    content = fallbackHtml;
+                }
+            }
+
+            insertHTML(path === 'sidebar.html' ? 'sidebar-placeholder' : 'topbar-placeholder', content);
+        })
         .catch(() => insertHTML(path === 'sidebar.html' ? 'sidebar-placeholder' : 'topbar-placeholder', fallbackHtml));
 }
 
@@ -118,7 +137,6 @@ function initTopbarFilters() {
     const currentDate = new Date();
     const defaultToday = currentDate.toISOString().split('T')[0];
 
-    tanggal.min = '2025-01-01';
     tanggal.max = defaultToday;
 
     if (selectedTanggal) {
@@ -291,7 +309,17 @@ const sidebarTemplate = `<aside id="sidebar" class="w-64 flex-shrink-0 bg-white 
             <p class="font-medium text-sm leading-tight">Tren Jenis Loket Layanan Samsat</p>
         </div>
     </a>
-</nav>
+
+    <a href="peta.html"
+        class="nav-item flex items-start gap-3 rounded-xl px-3 py-2.5 cursor-pointer transition-colors text-gray-600 hover:bg-gray-50">
+        <svg class="w-5 h-5 mt-0.5 flex-shrink-0 stroke-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+        </svg>
+        <div>
+            <p class="font-medium text-sm leading-tight">Peta Pendapatan</p>
+            <p class="text-[11px] text-gray-400 leading-tight">Visualisasi capaian daerah</p>
+        </div>
+    </a>
 
 </aside>`;
 const topbarTemplate = `
